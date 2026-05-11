@@ -5,6 +5,7 @@
 [Install page](https://chaoyue0307.github.io/upgrade-copilot/) ·
 [Premium waitlist](https://github.com/ChaoYue0307/upgrade-copilot/issues/new?template=waitlist.yml) ·
 [Risk report prototype](https://chaoyue0307.github.io/upgrade-copilot/risk-report.html) ·
+[Demo video](https://chaoyue0307.github.io/upgrade-copilot/assets/upgrade-copilot-demo.mp4) ·
 [Roadmap](docs/roadmap.md) ·
 [Case studies](https://chaoyue0307.github.io/upgrade-copilot/#case-study) ·
 [Prompt library](https://chaoyue0307.github.io/upgrade-copilot/prompts.html)
@@ -74,6 +75,10 @@ The case studies show how the plugin identifies major version gaps, risky migrat
 ## Risk Report Prototype
 
 Try the first premium prototype: [paste a public GitHub repo URL and generate an upgrade risk report](https://chaoyue0307.github.io/upgrade-copilot/risk-report.html). It is browser-only for now, supports shareable report URLs and Markdown downloads, and includes a waitlist form for future paid hosted scans, saved reports, GitHub automation, and team dashboards.
+
+## Demo Video
+
+Watch the real browser-recorded demo: [Upgrade Copilot risk report demo](https://chaoyue0307.github.io/upgrade-copilot/assets/upgrade-copilot-demo.mp4). It shows the live prototype scanning a public repo, rendering upgrade risk, exporting the report, and capturing premium interest.
 
 ## How It Compares
 
