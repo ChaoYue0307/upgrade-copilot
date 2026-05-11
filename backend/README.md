@@ -9,6 +9,7 @@ This is the first backend version of Upgrade Copilot's paid scan engine. It is i
 - Scans root plus shallow workspace folders for dependency manifests.
 - Detects lockfiles and common CI config.
 - Looks up latest package versions from public registries.
+- Maps risky dependencies to likely affected source files.
 - Produces deterministic findings, a PR plan, and validation commands.
 - Optionally calls OpenAI to generate a premium Markdown analysis.
 
@@ -79,7 +80,7 @@ window.UPGRADE_COPILOT_CONFIG = {
   backendApiUrl: "http://127.0.0.1:8787",
   enableLlm: false,
   saveBackendReports: true,
-  backendTimeoutMs: 7000
+  backendTimeoutMs: 15000
 };
 ```
 
@@ -92,18 +93,36 @@ window.UPGRADE_COPILOT_CONFIG = {
 - `ALLOWED_ORIGIN`: optional CORS origin, defaults to `*`.
 - `UPGRADE_COPILOT_DATA_DIR`: optional report storage directory, defaults to `backend/data`.
 
+## Source Impact Mapping
+
+The backend scans a capped set of shallow source files and looks for import/use patterns for notable dependencies. Results are returned as `affectedFiles`:
+
+```json
+{
+  "affectedFiles": [
+    {
+      "path": "src/App.tsx",
+      "packages": ["react", "react-router-dom"],
+      "ecosystems": ["npm"],
+      "reasons": ["React", "React Router"]
+    }
+  ]
+}
+```
+
+This is a review map, not a full static analysis graph.
+
 ## Current Limits
 
 - Does not clone repos or run tests yet.
-- Does not read full source code deeply yet.
+- Source impact mapping is shallow and import-pattern based.
 - Does not create GitHub issues or PRs yet.
 - Private repo support depends on a valid `GITHUB_TOKEN`.
 - LLM analysis is optional and only runs when requested.
 
 ## Next Backend Milestones
 
-1. Add source-code search for affected files.
-2. Fetch release notes and migration docs.
-3. Create GitHub issues from the PR plan.
-4. Add GitHub OAuth/App installation.
-5. Add Stripe checkout and account limits.
+1. Fetch release notes and migration docs.
+2. Create GitHub issues from the PR plan.
+3. Add GitHub OAuth/App installation.
+4. Add Stripe checkout and account limits.

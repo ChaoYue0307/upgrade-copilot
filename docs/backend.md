@@ -8,6 +8,7 @@ The static risk report page remains the public lead magnet. The backend prototyp
 - better rate limits with `GITHUB_TOKEN`
 - private repo support when authorized
 - lockfile and CI evidence
+- source impact mapping for likely affected files
 - optional LLM-generated premium analysis
 - saved reports and future GitHub issue/PR automation
 
@@ -54,6 +55,7 @@ The response contains deterministic scanner output and, when requested/configure
     "summary": {},
     "evidence": {},
     "dependencies": [],
+    "affectedFiles": [],
     "findings": [],
     "prPlan": [],
     "validationCommands": []
@@ -84,7 +86,7 @@ window.UPGRADE_COPILOT_CONFIG = {
   backendApiUrl: "http://127.0.0.1:8787",
   enableLlm: false,
   saveBackendReports: true,
-  backendTimeoutMs: 7000
+  backendTimeoutMs: 15000
 };
 ```
 
@@ -93,6 +95,10 @@ For temporary testing, pass the local backend URL in the page URL:
 ```text
 http://127.0.0.1:8768/risk-report.html?backend=http://127.0.0.1:8787
 ```
+
+## Source Impact Mapping
+
+Backend scans include an `affectedFiles` section. The scanner fetches a capped set of shallow source files and looks for import/use patterns tied to notable dependencies. The risk report UI shows those files under “Likely files to inspect,” and Markdown exports include the same review map.
 
 ## Why This Matters Commercially
 

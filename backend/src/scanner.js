@@ -14,9 +14,13 @@ const MANIFESTS = {
 
 const MANIFEST_NAMES = new Set(Object.keys(MANIFESTS));
 const COMMON_WORKSPACE_DIRS = new Set(["apps", "packages", "services", "frontend", "backend", "examples", "example", "demo", "api", "web", "client", "server"]);
+const COMMON_SOURCE_DIRS = new Set(["src", "app", "pages", "components", "lib", "utils", "tests", "test", "spec", "config", "settings"]);
 const MAX_MANIFESTS = 50;
 const MAX_REGISTRY_LOOKUPS = 140;
 const MAX_CI_FILES = 12;
+const MAX_SOURCE_FILES = 40;
+const MAX_SOURCE_FILE_BYTES = 180_000;
+const MAX_AFFECTED_FILES = 30;
 
 const LOCKFILE_NAMES = new Set([
   "package-lock.json",
@@ -31,6 +35,26 @@ const LOCKFILE_NAMES = new Set([
   "Cargo.lock",
   "composer.lock",
   "gradle.lockfile"
+]);
+
+const SOURCE_EXTENSIONS = new Set([
+  ".js",
+  ".jsx",
+  ".ts",
+  ".tsx",
+  ".mjs",
+  ".cjs",
+  ".py",
+  ".rb",
+  ".go",
+  ".rs",
+  ".php",
+  ".java",
+  ".kt",
+  ".kts",
+  ".scala",
+  ".vue",
+  ".svelte"
 ]);
 
 const RULE_PACKS = {
@@ -135,6 +159,14 @@ export async function scanRepository({ repoUrl, githubToken = process.env.GITHUB
 
   const dependencies = files.flatMap(parseDependencyFile).filter((dep) => dep.name);
   const enriched = await enrichDependencies(dependencies);
+  const sourceImpact = await mapSourceImpact({
+    owner: parsed.owner,
+    repo: parsed.repo,
+    branch: metadata.default_branch,
+    paths,
+    dependencies: enriched,
+    githubToken
+  });
   const findings = buildFindings(files, enriched, lockfiles, ciFiles);
   const majorCount = enriched.filter((dep) => dep.majorGap > 0).length;
   const outdatedCount = enriched.filter((dep) => dep.outdated).length;
@@ -153,16 +185,19 @@ export async function scanRepository({ repoUrl, githubToken = process.env.GITHUB
       dependencies: dependencies.length,
       findings: findings.length,
       majorCandidates: majorCount,
-      outdatedCandidates: outdatedCount
+      outdatedCandidates: outdatedCount,
+      affectedFiles: sourceImpact.affectedFiles.length
     },
     evidence: {
       files: files.map(({ path, ecosystem, label }) => ({ path, ecosystem, label })),
       lockfiles,
       ciFiles,
       registry: lookupStats,
-      scannerDepth: "root + shallow common workspace folders"
+      scannerDepth: "root + shallow common workspace folders",
+      sourceFilesScanned: sourceImpact.scannedFiles
     },
     dependencies: sortNotable(enriched).slice(0, 40).map(publicDependency),
+    affectedFiles: sourceImpact.affectedFiles,
     findings,
     prPlan: getPlanItems({ files, dependencies: enriched, unsupported: false }),
     validationCommands: validationCommandsFor(enriched),
@@ -228,11 +263,43 @@ function findCiFiles(paths) {
     .slice(0, MAX_CI_FILES);
 }
 
+function findSourcePaths(paths) {
+  return Array.from(paths)
+    .filter((path) => hasSourceExtension(path) && isSourceCandidate(path))
+    .sort((a, b) => scoreSourcePath(a) - scoreSourcePath(b) || a.localeCompare(b))
+    .slice(0, MAX_SOURCE_FILES);
+}
+
 function isShallowCandidate(path) {
   const parts = path.split("/");
   if (parts.length === 1) return true;
   if (parts.length <= 3 && COMMON_WORKSPACE_DIRS.has(parts[0])) return true;
   return false;
+}
+
+function isSourceCandidate(path) {
+  const parts = path.split("/");
+  if (parts.some((part) => ["node_modules", "vendor", "dist", "build", "coverage", ".git", ".next", "target"].includes(part))) return false;
+  if (parts.length <= 2) return true;
+  if (parts.length <= 5 && (COMMON_SOURCE_DIRS.has(parts[0]) || COMMON_WORKSPACE_DIRS.has(parts[0]))) return true;
+  return false;
+}
+
+function hasSourceExtension(path) {
+  return SOURCE_EXTENSIONS.has(extension(path));
+}
+
+function extension(path) {
+  const file = basename(path).toLowerCase();
+  const dot = file.lastIndexOf(".");
+  return dot >= 0 ? file.slice(dot) : "";
+}
+
+function scoreSourcePath(path) {
+  const parts = path.split("/");
+  if (COMMON_SOURCE_DIRS.has(parts[0])) return 0;
+  if (COMMON_WORKSPACE_DIRS.has(parts[0])) return 1;
+  return parts.length;
 }
 
 function scorePath(path) {
@@ -574,20 +641,126 @@ function validationCommandsFor(deps) {
   return Array.from(ecosystems).flatMap((ecosystem) => RULE_PACKS[ecosystem]?.validation || []).slice(0, 10);
 }
 
+async function mapSourceImpact({ owner, repo, branch, paths, dependencies, githubToken }) {
+  const sourcePaths = findSourcePaths(paths);
+  const matchers = buildImpactMatchers(dependencies);
+  if (!sourcePaths.length || !matchers.length) {
+    return { scannedFiles: sourcePaths.length, affectedFiles: [] };
+  }
+
+  const affected = (await Promise.all(sourcePaths.map(async (path) => {
+    const text = await fetchGitHubFile(owner, repo, branch, path, githubToken);
+    if (!text || text.length > MAX_SOURCE_FILE_BYTES) return null;
+    const matches = matchers.filter((matcher) => matcher.regex.test(text));
+    if (!matches.length) return null;
+    return {
+      path,
+      packages: unique(matches.map((match) => match.packageName)).slice(0, 8),
+      ecosystems: unique(matches.map((match) => match.ecosystem)),
+      reasons: unique(matches.map((match) => match.reason)).slice(0, 3),
+      score: matches.reduce((total, match) => total + match.weight, 0)
+    };
+  }))).filter(Boolean);
+
+  return {
+    scannedFiles: sourcePaths.length,
+    affectedFiles: affected
+      .sort((a, b) => b.score - a.score || a.path.localeCompare(b.path))
+      .slice(0, MAX_AFFECTED_FILES)
+      .map(({ score, ...file }) => file)
+  };
+}
+
+function buildImpactMatchers(dependencies) {
+  return sortNotable(dependencies)
+    .filter((dep) => dep.rule || dep.majorGap > 0 || dep.outdated)
+    .slice(0, 35)
+    .flatMap((dep) => dependencyMatchers(dep));
+}
+
+function dependencyMatchers(dep) {
+  const names = impactNames(dep);
+  const weight = (dep.rule ? 4 : 0) + Math.min(dep.majorGap || 0, 3) + (dep.outdated ? 1 : 0);
+  return names.map((name) => ({
+    packageName: dep.name,
+    ecosystem: dep.ecosystem,
+    reason: dep.rule?.family || ecosystemLabel(dep.ecosystem),
+    weight: Math.max(weight, 1),
+    regex: impactRegex(dep.ecosystem, name)
+  }));
+}
+
+function impactNames(dep) {
+  const name = dep.name;
+  if (dep.ecosystem === "pypi") {
+    const aliases = {
+      django: ["django"],
+      djangorestframework: ["rest_framework"],
+      "python-dotenv": ["dotenv"],
+      "pillow": ["PIL"],
+      "beautifulsoup4": ["bs4"],
+      "pyyaml": ["yaml"],
+      "psycopg2-binary": ["psycopg2"]
+    };
+    return aliases[name] || [name.replace(/-/g, "_")];
+  }
+  if (dep.ecosystem === "maven" && name.includes(":")) {
+    const [group, artifact] = name.split(":");
+    return [group, artifact].filter(Boolean);
+  }
+  return [name];
+}
+
+function impactRegex(ecosystem, name) {
+  const escaped = escapeRegExp(name);
+  if (ecosystem === "npm") {
+    return new RegExp(`(?:from\\s+['"]${escaped}(?:/[^'"]*)?['"]|require\\(\\s*['"]${escaped}(?:/[^'"]*)?['"]\\s*\\)|import\\(\\s*['"]${escaped}(?:/[^'"]*)?['"]\\s*\\))`, "i");
+  }
+  if (ecosystem === "pypi") {
+    return new RegExp(`(?:^|\\n)\\s*(?:from\\s+${escaped}(?:\\.|\\s+import)|import\\s+${escaped}(?:\\s|\\.|,|$))`, "i");
+  }
+  if (ecosystem === "rubygems") {
+    return new RegExp(`(?:require\\s+['"]${escaped}['"]|gem\\s+['"]${escaped}['"])`, "i");
+  }
+  if (ecosystem === "go") {
+    return new RegExp(`['"]${escaped}(?:/[^'"]*)?['"]`, "i");
+  }
+  if (ecosystem === "crates") {
+    return new RegExp(`(?:use\\s+${escaped.replace(/-/g, "_")}::|extern\\s+crate\\s+${escaped.replace(/-/g, "_")})`, "i");
+  }
+  if (ecosystem === "packagist") {
+    return new RegExp(`(?:${escaped}|${escapeRegExp(name.split("/").pop() || name)})`, "i");
+  }
+  if (ecosystem === "maven") {
+    return new RegExp(`(?:import\\s+${escaped.replace(/\\\./g, "\\.")}|${escaped})`, "i");
+  }
+  return new RegExp(escaped, "i");
+}
+
+function unique(values) {
+  return Array.from(new Set(values.filter(Boolean)));
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function buildUnsupportedReport(metadata, lockfiles, ciFiles) {
   return {
     metadata: normalizeMetadata(metadata),
     readiness: "yellow",
-    summary: { manifests: 0, dependencies: 0, findings: 2, majorCandidates: 0, outdatedCandidates: 0 },
+    summary: { manifests: 0, dependencies: 0, findings: 2, majorCandidates: 0, outdatedCandidates: 0, affectedFiles: 0 },
     evidence: {
       files: [],
       lockfiles,
       ciFiles,
       registry: { attempted: 0, succeeded: 0, failed: 0 },
       scannerDepth: "root + shallow common workspace folders",
+      sourceFilesScanned: 0,
       searchedManifestNames: Array.from(MANIFEST_NAMES).sort()
     },
     dependencies: [],
+    affectedFiles: [],
     findings: [
       { title: "No supported manifest found", text: "No supported dependency manifest was found in root or shallow workspace folders.", severity: "medium" },
       { title: "Backend opportunity", text: "A paid scanner can add custom paths, full repo traversal, and source-code inspection for this repo.", severity: "low" }

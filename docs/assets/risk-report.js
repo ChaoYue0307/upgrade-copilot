@@ -767,6 +767,8 @@ function normalizeBackendReport(payload) {
     lockfiles: scan.evidence.lockfiles || [],
     searched: scan.evidence.searchedManifestNames || Array.from(MANIFEST_NAMES).sort(),
     lookupStats: scan.evidence.registry || { attempted: 0, succeeded: 0, failed: 0 },
+    sourceFilesScanned: scan.evidence.sourceFilesScanned || 0,
+    affectedFiles: scan.affectedFiles || [],
     unsupported: Boolean(scan.unsupported),
     backend: true,
     reportId: payload.reportId,
@@ -809,6 +811,7 @@ function renderReport(report) {
   renderPlan(report);
   renderUpgrades(report.notable);
   renderFilesScanned(report);
+  renderAffectedFiles(report);
   renderRegistryCoverage(report);
   shareUrlInput.value = shareUrlForReport(report);
   waitlistStatus.textContent = report.unsupported ? "Use this form to request support for this stack or repo layout." : "Opens a prefilled GitHub issue so the request is easy to track.";
@@ -876,16 +879,32 @@ function renderFilesScanned(report) {
   }
 }
 
+function renderAffectedFiles(report) {
+  const container = document.querySelector("#affectedFiles");
+  if (!container) return;
+  const affectedFiles = report.affectedFiles || [];
+  container.innerHTML = affectedFiles.length ? "" : "<p>No source-impact matches yet. Use the local backend for source file mapping, or validate manually from the package list.</p>";
+  for (const file of affectedFiles.slice(0, 12)) {
+    const div = document.createElement("div");
+    div.className = "upgrade";
+    const packages = file.packages?.length ? file.packages.join(", ") : "dependency usage";
+    div.innerHTML = `<code>${escapeHtml(file.path)}</code><span>${escapeHtml(packages)}</span>`;
+    container.appendChild(div);
+  }
+}
+
 function renderRegistryCoverage(report) {
   const container = document.querySelector("#registryCoverage");
   const stats = report.lookupStats || { attempted: 0, succeeded: 0, failed: 0 };
   const lockfileText = report.lockfiles?.length ? `${report.lockfiles.length} lockfile(s) found` : "No shallow lockfile found";
   const scanModeText = report.backend ? `backend${report.saved ? " · saved" : " · unsaved"}` : "browser";
+  const sourceText = report.sourceFilesScanned ? `${report.sourceFilesScanned} source file(s) scanned` : "Source impact not scanned";
   container.innerHTML = "";
   [
     ["Registry lookups", `${stats.succeeded}/${stats.attempted} succeeded`],
     ["Lookup failures", `${stats.failed}`],
     ["Lockfile evidence", lockfileText],
+    ["Source impact", sourceText],
     ["Scanner depth", "root + common workspace folders"],
     ["Report mode", scanModeText]
   ].forEach(([label, value]) => {
@@ -941,6 +960,14 @@ function buildMarkdown(report) {
   report.findings.forEach((finding) => lines.push(`- **${finding.title}** (${finding.severity}): ${finding.text}`));
   lines.push("", "## Suggested PR Plan", "");
   getPlanItems(report).forEach((item, index) => lines.push(`${index + 1}. ${item}`));
+  lines.push("", "## Likely Files To Inspect", "");
+  if (report.affectedFiles?.length) {
+    report.affectedFiles.slice(0, 20).forEach((file) => {
+      lines.push(`- \`${file.path}\`: ${(file.packages || []).join(", ") || "dependency usage"}`);
+    });
+  } else {
+    lines.push("- No source-impact matches found in this scan.");
+  }
   lines.push("", "## Notable Packages", "");
   if (report.notable.length) {
     report.notable.slice(0, 16).forEach((dep) => lines.push(`- \`${dep.name}\` (${dep.ecosystem}): ${dep.version || "unversioned"} -> ${dep.latest || "latest unavailable"}`));

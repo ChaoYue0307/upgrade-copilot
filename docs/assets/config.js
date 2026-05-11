@@ -4,5 +4,5 @@ window.UPGRADE_COPILOT_CONFIG = {
   backendApiUrl: "",
   enableLlm: false,
   saveBackendReports: true,
-  backendTimeoutMs: 7000
+  backendTimeoutMs: 15000
 };
