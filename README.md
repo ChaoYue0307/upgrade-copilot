@@ -8,7 +8,7 @@
 [Case study](https://chaoyue0307.github.io/upgrade-copilot/case-studies/nextjs-starter-upgrade-triage.html) ·
 [Prompt library](https://chaoyue0307.github.io/upgrade-copilot/prompts.html)
 
-![Upgrade Copilot plugin page](docs/assets/plugin-page.png)
+![Upgrade Copilot social preview](docs/assets/social-preview.png)
 
 ## Why This Exists
 
@@ -21,6 +21,8 @@ Dependency upgrades look simple until they break CI, auth flows, build tooling, 
 - Turn recurring upgrade debt into a team backlog.
 
 The goal is to make upgrades reviewable, testable, and easier to fund.
+
+![Upgrade Copilot plugin page](docs/assets/plugin-page.png)
 
 ## Install In Codex
 
