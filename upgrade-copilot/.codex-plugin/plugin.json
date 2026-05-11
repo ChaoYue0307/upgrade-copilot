@@ -1,6 +1,6 @@
 {
   "name": "upgrade-copilot",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "A Codex plugin that makes risky dependency and framework upgrades easier to assess, split, validate, and ship.",
   "author": {
     "name": "Chaoyue",
@@ -33,8 +33,8 @@
       "Write"
     ],
     "websiteURL": "https://chaoyue0307.github.io/upgrade-copilot/",
-    "privacyPolicyURL": "https://github.com/ChaoYue0307/upgrade-copilot",
-    "termsOfServiceURL": "https://github.com/ChaoYue0307/upgrade-copilot",
+    "privacyPolicyURL": "https://chaoyue0307.github.io/upgrade-copilot/privacy.md",
+    "termsOfServiceURL": "https://chaoyue0307.github.io/upgrade-copilot/terms.md",
     "brandColor": "#2563EB",
     "composerIcon": "./assets/icon.png",
     "logo": "./assets/icon.png",

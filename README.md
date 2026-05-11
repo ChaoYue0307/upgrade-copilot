@@ -76,6 +76,13 @@ The case study shows how the plugin identifies major version gaps, risky migrati
 
 Open the [prompt library](https://chaoyue0307.github.io/upgrade-copilot/prompts.html) for copy-paste prompts covering dependency triage, framework migrations, CI rescue, PR splitting, and team upgrade planning.
 
+## FAQ, Privacy, And Terms
+
+- [FAQ](docs/faq.md)
+- [Privacy policy](docs/privacy.md)
+- [Terms of service](docs/terms.md)
+- [Launch post drafts](docs/launch-post.md)
+
 ## Product Direction
 
 The free plugin is the distribution layer. The paid product can become a hosted upgrade service:
@@ -100,6 +107,9 @@ upgrade-copilot/.codex-plugin/plugin.json
 upgrade-copilot/skills/
 docs/index.html                         # GitHub Pages landing page
 docs/prompts.html
+docs/faq.md
+docs/privacy.md
+docs/terms.md
 docs/case-studies/
 docs/roadmap.md
 ```

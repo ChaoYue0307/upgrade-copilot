@@ -13,7 +13,7 @@
       property="og:description"
       content="Upgrade dependencies, frameworks, and CI with less risk using a focused Codex plugin."
     />
-    <meta property="og:image" content="https://chaoyue0307.github.io/upgrade-copilot/assets/plugin-page.png" />
+    <meta property="og:image" content="https://chaoyue0307.github.io/upgrade-copilot/assets/social-preview.png" />
     <meta property="og:type" content="website" />
     <style>
       :root {
@@ -435,6 +435,28 @@
         white-space: normal;
       }
 
+      .faq-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      details {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.78);
+        padding: 16px 18px;
+      }
+
+      summary {
+        cursor: pointer;
+        font-weight: 800;
+      }
+
+      details p {
+        margin: 10px 0 0;
+        color: var(--muted);
+      }
+
       .screenshot {
         width: 100%;
         border: 1px solid var(--line);
@@ -779,6 +801,35 @@ Sparse paths:</code></pre>
             </div>
           </div>
         </section>
+
+        <section id="faq">
+          <div class="section-title">
+            <span class="kicker">FAQ</span>
+            <h2>Questions developers will ask first.</h2>
+            <p>Short answers for install, trust, and product direction.</p>
+          </div>
+          <div class="faq-list">
+            <details>
+              <summary>Is this an official OpenAI marketplace plugin?</summary>
+              <p>No. It is a public custom marketplace source for Codex, not an official OpenAI listing.</p>
+            </details>
+            <details>
+              <summary>Is it free?</summary>
+              <p>Yes. The plugin is free today. Future premium services may add hosted scans, GitHub automation, and team dashboards.</p>
+            </details>
+            <details>
+              <summary>How is this different from Dependabot or Renovate?</summary>
+              <p>Those tools open version bump PRs. Upgrade Copilot focuses on migration reasoning: risk, sequencing, validation, rollback, and reviewer context.</p>
+            </details>
+            <details>
+              <summary>Does it make code changes automatically?</summary>
+              <p>Only when you ask Codex to implement a migration batch. Your normal Codex approval and execution settings still apply.</p>
+            </details>
+          </div>
+          <div class="cta-row">
+            <a class="button secondary" href="faq.md">Read full FAQ</a>
+          </div>
+        </section>
       </main>
     </div>
 
@@ -816,6 +867,7 @@ Sparse paths:</code></pre>
     <div class="page">
       <footer>
         Upgrade Copilot is a public custom marketplace source, not an official OpenAI marketplace listing.
+        <a href="faq.md">FAQ</a> · <a href="privacy.md">Privacy</a> · <a href="terms.md">Terms</a>
       </footer>
     </div>
   </body>
