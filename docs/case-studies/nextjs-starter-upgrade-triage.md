@@ -2,7 +2,7 @@
 
 Repository: [`pbteja1998/nextjs-starter`](https://github.com/pbteja1998/nextjs-starter)
 
-This case study shows the kind of upgrade report Upgrade Copilot is meant to produce for a real public repository.
+This case study shows the kind of upgrade report Upgrade Copilot is meant to produce for a real public repository: concrete evidence, upgrade risk, a staged plan, and validation commands.
 
 ## Repository Snapshot
 
@@ -28,9 +28,14 @@ Current package baselines checked during the demo:
 - `typescript`: `6.0.3`
 - `eslint`: `10.3.0`
 
-## What Upgrade Copilot Would Flag
+## Report Summary
 
-Readiness: **yellow/red**.
+- Readiness: **yellow/red**
+- Primary risk: several major framework and tooling jumps are coupled together
+- Best first action: establish baseline validation before changing dependencies
+- Recommended shape: staged PRs, not one dependency bot mega-PR
+
+## What Upgrade Copilot Would Flag
 
 The upgrade opportunity is real, but this is not a safe single-PR dependency bump.
 
@@ -53,27 +58,33 @@ Repository-specific evidence:
 ## Suggested PR Plan
 
 1. **Baseline validation PR**
+
    - Document the current validation commands.
    - Run `yarn check-types`, `yarn check-lint`, and `yarn build`.
    - Add CI before upgrading dependencies if this repo is maintained by a team.
 
 2. **Tooling cleanup PR**
+
    - Upgrade TypeScript, Prettier, ESLint, and related configs in a focused batch.
    - Keep Next.js, React, auth, Tailwind, and database code unchanged.
 
 3. **Auth migration PR**
+
    - Upgrade `next-auth` separately from framework changes.
    - Validate GitHub, LinkedIn, passwordless email, and session flows.
 
 4. **Data/query migration PR**
+
    - Move from `react-query` 3 toward `@tanstack/react-query`.
    - Update imports and query client setup with tests or manual smoke checks.
 
 5. **Tailwind migration PR**
+
    - Move from Tailwind 2 config conventions to the selected newer Tailwind target.
    - Validate visual regressions and generated CSS.
 
 6. **Framework migration PRs**
+
    - Upgrade Next.js in stages.
    - Delay React 19 until the selected Next.js target and app code are ready.
 

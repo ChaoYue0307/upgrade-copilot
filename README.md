@@ -1,16 +1,25 @@
 # Upgrade Copilot
 
-Upgrade Copilot is a Codex plugin that helps developers upgrade dependencies, frameworks, runtimes, SDKs, and CI without turning the work into one giant risky PR.
+**Upgrade Copilot is a Codex plugin for dependency and framework upgrades that should not become one giant risky PR.**
 
-It is designed for the moments developers already feel pain:
-
-- Which dependencies can I safely upgrade this week?
-- What breaking changes actually affect this repo?
-- Why did CI start failing after an upgrade?
-- How do I split this migration into reviewable PRs?
-- What upgrade backlog should this team fund next?
+[Install page](https://chaoyue0307.github.io/upgrade-copilot/) ·
+[Premium waitlist](https://github.com/ChaoYue0307/upgrade-copilot/issues/new?template=waitlist.yml) ·
+[Roadmap](docs/roadmap.md) ·
+[Case study](docs/case-studies/nextjs-starter-upgrade-triage.md)
 
 ![Upgrade Copilot plugin page](docs/assets/plugin-page.png)
+
+## Why This Exists
+
+Dependency upgrades look simple until they break CI, auth flows, build tooling, or production behavior. Upgrade Copilot gives Codex a focused operating model for this work:
+
+- Find the safest dependency upgrades first.
+- Map upstream breaking changes to local files and configs.
+- Diagnose upgrade-related test, type, lint, and build failures.
+- Split migrations into small PRs with validation and rollback notes.
+- Turn recurring upgrade debt into a team backlog.
+
+The goal is to make upgrades reviewable, testable, and easier to fund.
 
 ## Install In Codex
 
@@ -26,7 +35,7 @@ Leave `Sparse paths` empty. After the marketplace loads, open **Upgrade Copilot*
 
 This is a public custom marketplace source. It is not an official OpenAI marketplace listing.
 
-## Try It
+## Try These Prompts
 
 ```text
 Use Upgrade Copilot to find the safest dependency upgrades in this repo.
@@ -36,15 +45,25 @@ Use Upgrade Copilot to split this migration into small PRs with validation comma
 Use Upgrade Copilot to build a team upgrade backlog for this repository.
 ```
 
-## What Is Included
+## Included Skills
 
-- `dependency-upgrade-triage`: prioritize outdated, vulnerable, risky, and safe dependency updates.
-- `breaking-change-mapper`: map migration guides and release notes to local code.
-- `upgrade-ci-rescue`: diagnose upgrade-related CI, build, test, lint, and type failures.
-- `upgrade-assessment`: audit readiness before framework, runtime, or platform migrations.
-- `migration-executor`: implement migration batches with focused validation.
-- `migration-pr-splitter`: split migration work into reviewable PRs.
-- `team-upgrade-program`: create an upgrade backlog and 30/60/90-day roadmap.
+| Skill | What It Helps With |
+| --- | --- |
+| `dependency-upgrade-triage` | Prioritize outdated, vulnerable, risky, and safe dependency updates. |
+| `breaking-change-mapper` | Map migration guides and release notes to local code, configs, and symbols. |
+| `upgrade-ci-rescue` | Diagnose upgrade-related CI, build, test, lint, and type failures. |
+| `upgrade-assessment` | Audit readiness before framework, runtime, dependency, or platform migrations. |
+| `migration-executor` | Implement upgrade batches with focused validation. |
+| `migration-pr-splitter` | Split migration work into reviewable PRs with rollback notes. |
+| `team-upgrade-program` | Create an upgrade backlog and 30/60/90-day roadmap. |
+
+## Demo Case Study
+
+I browsed a real public repo, [`pbteja1998/nextjs-starter`](https://github.com/pbteja1998/nextjs-starter), and wrote an Upgrade Copilot-style assessment:
+
+[`Next.js Starter Upgrade Triage`](docs/case-studies/nextjs-starter-upgrade-triage.md)
+
+The case study shows how the plugin identifies major version gaps, risky migration areas, missing CI evidence, and a safe PR sequence.
 
 ## Product Direction
 
@@ -58,20 +77,17 @@ The free plugin is the distribution layer. The paid product can become a hosted 
 
 See `upgrade-copilot/docs/monetization.md` and `upgrade-copilot/.mcp.example.json` for the placeholder paid-service shape.
 
-## Demo Case Study
-
-I browsed a real public repo, [`pbteja1998/nextjs-starter`](https://github.com/pbteja1998/nextjs-starter), and wrote an Upgrade Copilot-style assessment:
-
-[`Next.js Starter Upgrade Triage`](docs/case-studies/nextjs-starter-upgrade-triage.md)
-
-The case study shows how the plugin should identify major version gaps, risky migration areas, missing CI evidence, and a safe PR sequence.
-
 ## Join The Premium Waitlist
 
 Want hosted repo scans, upgrade risk reports, GitHub PR automation, or a team dashboard? [Open a waitlist request](https://github.com/ChaoYue0307/upgrade-copilot/issues/new?template=waitlist.yml).
 
-See `docs/roadmap.md` for the product roadmap.
+## Repository Layout
 
-## Landing Page
-
-The static landing page lives in `docs/index.html` and can be published with GitHub Pages from the `main` branch `/docs` folder.
+```text
+.agents/plugins/marketplace.json        # Codex custom marketplace manifest
+upgrade-copilot/.codex-plugin/plugin.json
+upgrade-copilot/skills/
+docs/index.html                         # GitHub Pages landing page
+docs/case-studies/
+docs/roadmap.md
+```
