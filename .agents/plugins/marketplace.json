@@ -1,0 +1,20 @@
+{
+  "name": "chaoyue-codex-plugins",
+  "interface": {
+    "displayName": "Chaoyue Codex Plugins"
+  },
+  "plugins": [
+    {
+      "name": "upgrade-copilot",
+      "source": {
+        "source": "local",
+        "path": "./upgrade-copilot"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
