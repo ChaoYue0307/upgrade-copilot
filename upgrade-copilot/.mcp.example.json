@@ -1,0 +1,14 @@
+{
+  "mcp_servers": {
+    "upgrade-copilot-premium": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upgrade-copilot/mcp-server"
+      ],
+      "env": {
+        "UPGRADE_COPILOT_API_KEY": "${UPGRADE_COPILOT_API_KEY}"
+      }
+    }
+  }
+}

@@ -1,42 +1,71 @@
 # Upgrade Copilot
 
-Upgrade Copilot is a Codex plugin for one of the highest-value developer workflows: helping teams plan and execute framework, dependency, language, and platform upgrades.
+Upgrade Copilot is a Codex plugin for developers who need to upgrade dependencies, frameworks, runtimes, SDKs, and build systems without turning the repo into one giant risky PR.
 
-The commercial thesis is simple: companies already pay engineers and consultants to reduce migration risk. A plugin that turns upgrade work into assessed, testable, reviewable batches can become a paid product once Codex plugin distribution and billing mature.
+The product bet: teams already spend expensive engineering time on upgrades that feel boring until they break CI, production behavior, or release timelines. A useful Codex plugin should make those moments less painful by turning upgrade work into evidence, batches, validation, and clear reviewer context.
 
-## What It Does
+## Jobs It Should Win
 
-- Assesses upgrade readiness across package manifests, configs, CI, tests, and deployment files.
-- Finds likely breaking changes and maps them to repository risk.
-- Produces a migration plan that can be split into small pull requests.
-- Guides Codex through implementation batches with validation after each step.
+- "Which dependencies can I safely update this week?"
+- "What breaking changes affect this codebase before we upgrade?"
+- "CI broke after a package update. What actually caused it?"
+- "Split this framework migration into PRs a reviewer can understand."
+- "Help me implement the next migration batch and prove it works."
 
 ## Included Skills
 
-- `upgrade-assessment`: Audit a repository before a migration.
-- `migration-executor`: Implement an upgrade in small, safe batches.
-- `migration-pr-splitter`: Split large migration work into reviewable PRs.
+- `dependency-upgrade-triage`: Prioritize outdated, vulnerable, risky, and safe dependency updates.
+- `breaking-change-mapper`: Map upstream migration notes to local files, configs, and symbols.
+- `upgrade-ci-rescue`: Diagnose CI, build, test, lint, and type failures caused by upgrades.
+- `upgrade-assessment`: Audit readiness before a framework, runtime, dependency, or platform migration.
+- `migration-executor`: Implement upgrade batches with focused validation.
+- `migration-pr-splitter`: Split migration work into reviewable PRs with rollback notes.
+- `team-upgrade-program`: Turn upgrade work into a ranked team backlog and 30/60/90-day roadmap.
 
-## Suggested Future Paid Features
+## Example Prompts
+
+```text
+Use Upgrade Copilot to find the safest dependency upgrades in this repo.
+Use Upgrade Copilot to map breaking changes for upgrading Next.js.
+Use Upgrade Copilot to diagnose why CI started failing after this dependency update.
+Use Upgrade Copilot to split this migration into small PRs with validation commands.
+Use Upgrade Copilot to implement the first low-risk upgrade batch.
+Use Upgrade Copilot to build a team upgrade backlog for this repository.
+```
+
+## What Makes It Useful
+
+- It starts from repository evidence, not generic migration advice.
+- It treats tests and CI as first-class upgrade inputs.
+- It separates safe patches, risky majors, abandoned packages, framework-coupled upgrades, and cleanup work.
+- It asks Codex to produce reviewer-ready plans with validation and rollback notes.
+- It creates a clear path to paid features without blocking the free plugin.
+
+## Future Paid Features
 
 - Hosted migration intelligence: curated breaking-change rules for popular stacks.
 - License-gated MCP server: account, quota, and paid plan checks.
-- GitHub integration: scan repos, open migration PRs, track rollout status.
-- Team dashboard: migration inventory, risk score, and upgrade backlog.
+- GitHub integration: scan repos, open migration PRs, and track rollout status.
+- Team dashboard: migration inventory, risk score, upgrade backlog, and SLA tracking.
 - Premium playbooks: Next.js, React, Node, Python, Rails, Django, Terraform, Kubernetes, and database upgrades.
+
+See `docs/monetization.md` for the paid-product placeholder and `.mcp.example.json` for the future premium MCP shape. The MCP example is not enabled by default, so the plugin remains installable without a paid backend.
 
 ## Local Testing
 
-To test this plugin through a local marketplace later, create a marketplace entry that points to this folder. The plugin itself starts at:
+Validation:
+
+- Plugin manifest schema checks run in CI via `.github/workflows/validate-plugin.json.yml` when the plugin folder is used as a standalone repo.
+- This marketplace repo also includes a root workflow at `.github/workflows/validate-plugin.yml`.
+- You can run the same check locally from this marketplace repo root with:
+
+```bash
+jq empty upgrade-copilot/.codex-plugin/plugin.json
+jq -e '.name and .version and .description and .skills and .author and .author.url and .interface and .interface.displayName and .interface.defaultPrompt and .interface.capabilities' upgrade-copilot/.codex-plugin/plugin.json
+```
+
+The plugin itself starts at:
 
 ```text
 upgrade-copilot/.codex-plugin/plugin.json
-```
-
-In Codex, try prompts like:
-
-```text
-Use Upgrade Copilot to assess this repo for a React upgrade.
-Use Upgrade Copilot to plan a safe Next.js migration.
-Use Upgrade Copilot to split this dependency upgrade into small PRs.
 ```

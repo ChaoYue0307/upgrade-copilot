@@ -13,13 +13,15 @@ You are turning a risky migration into a sequence of reviewable pull requests.
 - Earlier PRs should reduce risk for later PRs.
 - Avoid mixing mechanical rewrites with behavior changes.
 - Preserve deployability between PRs whenever the repository supports it.
+- Make rollback obvious. A reviewer should understand how to back out each PR.
 
 ## Workflow
 
 1. Inspect the current diff, migration plan, or repository structure.
 2. Identify independent dependency, config, API, runtime, and test changes.
-3. Group changes by review surface and rollback strategy.
-4. Recommend a PR sequence with validation for each PR.
+3. Separate mechanical changes, compatibility layers, behavior changes, and cleanup.
+4. Group changes by review surface and rollback strategy.
+5. Recommend a PR sequence with validation for each PR.
 
 ## Output
 
@@ -31,5 +33,6 @@ Return a PR sequence with:
 - Excluded work.
 - Validation commands.
 - Rollback notes.
+- Merge order and dependencies.
 
 Call out any PR that is too large to review safely and suggest how to split it further.

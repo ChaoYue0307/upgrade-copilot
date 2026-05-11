@@ -1,42 +1,49 @@
 {
   "name": "upgrade-copilot",
-  "version": "0.1.1",
-  "description": "A Codex plugin for planning and executing framework, dependency, and codebase upgrades.",
+  "version": "0.3.0",
+  "description": "A Codex plugin that turns risky dependency and framework upgrades into assessed, testable, reviewable PRs.",
   "author": {
     "name": "Chaoyue",
-    "url": "https://example.com"
+    "url": "https://github.com/chaoyue-codex-plugins"
   },
-  "homepage": "https://example.com/upgrade-copilot",
-  "repository": "https://github.com/your-org/upgrade-copilot",
+  "homepage": "https://github.com/chaoyue-codex-plugins/upgrade-copilot",
+  "repository": "https://github.com/chaoyue-codex-plugins/upgrade-copilot",
   "license": "Commercial",
   "keywords": [
     "migration",
     "upgrade",
     "dependencies",
     "refactoring",
-    "technical-debt"
+    "technical-debt",
+    "ci",
+    "security",
+    "breaking-changes",
+    "premium",
+    "github"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Upgrade Copilot",
-    "shortDescription": "Plan and execute high-value codebase upgrades.",
-    "longDescription": "Upgrade Copilot helps engineering teams assess, plan, and implement framework and dependency upgrades in reviewable batches, with risk analysis, test strategy, and migration checklists.",
+    "shortDescription": "Upgrade dependencies, frameworks, and CI with less risk.",
+    "longDescription": "Upgrade Copilot helps developers answer the hard upgrade questions: what is safe to update, what will break, why CI is failing, and how to split the work into reviewable PRs. It combines repository inspection, release-note research, risk scoring, migration plans, and implementation discipline, with a future-ready path for premium migration intelligence and team upgrade programs.",
     "developerName": "Chaoyue",
     "category": "Developer Tools",
     "capabilities": [
       "Read",
       "Write"
     ],
-    "websiteURL": "https://example.com/upgrade-copilot",
-    "privacyPolicyURL": "https://example.com/privacy",
-    "termsOfServiceURL": "https://example.com/terms",
+    "websiteURL": "https://github.com/chaoyue-codex-plugins/upgrade-copilot",
+    "privacyPolicyURL": "https://github.com/chaoyue-codex-plugins/upgrade-copilot",
+    "termsOfServiceURL": "https://github.com/chaoyue-codex-plugins/upgrade-copilot",
     "brandColor": "#2563EB",
     "composerIcon": "./assets/icon.png",
     "logo": "./assets/icon.png",
     "defaultPrompt": [
-      "Use Upgrade Copilot to assess this repository for a dependency upgrade.",
-      "Use Upgrade Copilot to plan a safe Next.js migration.",
-      "Use Upgrade Copilot to split this framework upgrade into reviewable PRs."
+      "Use Upgrade Copilot to find the safest dependency upgrades in this repo.",
+      "Use Upgrade Copilot to diagnose why CI started failing after an upgrade.",
+      "Use Upgrade Copilot to map breaking changes before we upgrade this framework.",
+      "Use Upgrade Copilot to split this migration into small reviewable PRs.",
+      "Use Upgrade Copilot to build a team upgrade backlog for this repository."
     ]
   }
 }

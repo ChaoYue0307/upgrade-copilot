@@ -1,0 +1,21 @@
+name: Validate Upgrade Copilot Plugin
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  plugin-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate plugin manifest
+        run: |
+          jq empty upgrade-copilot/.codex-plugin/plugin.json
+          jq -e '.name and .version and .description and .skills and .author and .author.url and .interface and .interface.displayName and .interface.defaultPrompt and .interface.capabilities' upgrade-copilot/.codex-plugin/plugin.json
+      - name: Validate marketplace manifest
+        run: |
+          jq empty .agents/plugins/marketplace.json
+          jq -e '.name and .plugins and (.plugins | length > 0)' .agents/plugins/marketplace.json
