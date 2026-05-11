@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Upgrade Copilot Prompts</title>
+    <meta name="description" content="Copy-paste prompts for using Upgrade Copilot in Codex." />
+    <style>
+      :root {
+        --bg: #f7faff;
+        --card: #ffffff;
+        --ink: #0f172a;
+        --muted: #526071;
+        --line: #dce6f2;
+        --blue: #2563eb;
+        --indigo: #312e81;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at top left, rgba(37, 99, 235, 0.2), transparent 34rem),
+          linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+
+      a {
+        color: var(--blue);
+        text-decoration: none;
+      }
+
+      .page {
+        width: min(980px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 28px 0;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 750;
+      }
+
+      .brand img {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+      }
+
+      h1 {
+        margin: 48px 0 16px;
+        max-width: 780px;
+        font-size: clamp(42px, 7vw, 72px);
+        line-height: 0.96;
+        letter-spacing: -0.055em;
+      }
+
+      .lead {
+        max-width: 720px;
+        color: var(--muted);
+        font-size: 20px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+        margin: 36px 0 72px;
+      }
+
+      .prompt {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.82);
+        padding: 22px;
+      }
+
+      .prompt h2 {
+        margin: 0 0 10px;
+        font-size: 22px;
+      }
+
+      .prompt p {
+        margin: 0 0 14px;
+        color: var(--muted);
+      }
+
+      code {
+        display: block;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #f8fafc;
+        padding: 16px;
+        color: #1e293b;
+        white-space: pre-wrap;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      }
+
+      footer {
+        padding: 32px 0 48px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <a class="brand" href="./">
+          <img src="assets/icon.png" alt="Upgrade Copilot icon" />
+          <span>Upgrade Copilot</span>
+        </a>
+        <a href="./">Back to home</a>
+      </header>
+
+      <main>
+        <h1>Copy-paste prompts for risky upgrade work.</h1>
+        <p class="lead">
+          Use these in a Codex thread after installing Upgrade Copilot. They are designed for real upgrade moments:
+          triage, breaking changes, CI failures, PR splitting, and team planning.
+        </p>
+
+        <div class="grid">
+          <section class="prompt">
+            <h2>Find safe dependency batches</h2>
+            <p>Use when a repo has many outdated packages and you need a low-risk starting point.</p>
+            <code>Use Upgrade Copilot to inspect this repo's package manifests, lockfiles, tests, and CI. Find the safest dependency upgrades, group them into small PR batches, and list validation commands for each batch.</code>
+          </section>
+
+          <section class="prompt">
+            <h2>Map framework breaking changes</h2>
+            <p>Use before upgrading Next.js, React, Rails, Django, Terraform, Kubernetes, or another major framework.</p>
+            <code>Use Upgrade Copilot to map breaking changes for upgrading this framework. Connect each relevant upstream change to local files, configs, tests, and runtime behavior. Ignore changes that do not appear relevant to this repo.</code>
+          </section>
+
+          <section class="prompt">
+            <h2>Diagnose CI after an upgrade</h2>
+            <p>Use when a dependency bump caused tests, type checks, lint, or build steps to fail.</p>
+            <code>Use Upgrade Copilot to diagnose this upgrade-related CI failure. Start from the first meaningful error, classify the failure, compare it with the upgrade diff, and propose the smallest fix plus the validation command to rerun.</code>
+          </section>
+
+          <section class="prompt">
+            <h2>Split a migration into PRs</h2>
+            <p>Use when a migration is too large or risky for one review.</p>
+            <code>Use Upgrade Copilot to split this migration into reviewable PRs. Separate dependency bumps, config changes, mechanical rewrites, behavior changes, tests, and cleanup. Include merge order, validation commands, and rollback notes.</code>
+          </section>
+
+          <section class="prompt">
+            <h2>Create a team upgrade backlog</h2>
+            <p>Use when you want a roadmap that managers and tech leads can fund.</p>
+            <code>Use Upgrade Copilot to build a team upgrade backlog for this repository. Rank work by risk, urgency, engineering effort, validation confidence, and rollback difficulty. Return a 30/60/90-day plan.</code>
+          </section>
+        </div>
+      </main>
+
+      <footer>
+        Upgrade Copilot is a public custom marketplace source for Codex.
+      </footer>
+    </div>
+  </body>
+</html>

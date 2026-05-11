@@ -5,7 +5,8 @@
 [Install page](https://chaoyue0307.github.io/upgrade-copilot/) ·
 [Premium waitlist](https://github.com/ChaoYue0307/upgrade-copilot/issues/new?template=waitlist.yml) ·
 [Roadmap](docs/roadmap.md) ·
-[Case study](docs/case-studies/nextjs-starter-upgrade-triage.md)
+[Case study](https://chaoyue0307.github.io/upgrade-copilot/case-studies/nextjs-starter-upgrade-triage.html) ·
+[Prompt library](https://chaoyue0307.github.io/upgrade-copilot/prompts.html)
 
 ![Upgrade Copilot plugin page](docs/assets/plugin-page.png)
 
@@ -61,9 +62,19 @@ Use Upgrade Copilot to build a team upgrade backlog for this repository.
 
 I browsed a real public repo, [`pbteja1998/nextjs-starter`](https://github.com/pbteja1998/nextjs-starter), and wrote an Upgrade Copilot-style assessment:
 
-[`Next.js Starter Upgrade Triage`](docs/case-studies/nextjs-starter-upgrade-triage.md)
+[`Next.js Starter Upgrade Triage`](https://chaoyue0307.github.io/upgrade-copilot/case-studies/nextjs-starter-upgrade-triage.html)
 
 The case study shows how the plugin identifies major version gaps, risky migration areas, missing CI evidence, and a safe PR sequence.
+
+## How It Compares
+
+- **Dependabot/Renovate** open version bump PRs. Upgrade Copilot explains risk, groups upgrades, and proposes validation-backed PR batches.
+- **Generic Codex prompting** can help if the user writes the right prompt. Upgrade Copilot loads the upgrade workflow every time.
+- **Migration docs** describe upstream changes. Upgrade Copilot maps those changes to local files, configs, tests, and rollout risk.
+
+## Prompt Library
+
+Open the [prompt library](https://chaoyue0307.github.io/upgrade-copilot/prompts.html) for copy-paste prompts covering dependency triage, framework migrations, CI rescue, PR splitting, and team upgrade planning.
 
 ## Product Direction
 
@@ -88,6 +99,7 @@ Want hosted repo scans, upgrade risk reports, GitHub PR automation, or a team da
 upgrade-copilot/.codex-plugin/plugin.json
 upgrade-copilot/skills/
 docs/index.html                         # GitHub Pages landing page
+docs/prompts.html
 docs/case-studies/
 docs/roadmap.md
 ```

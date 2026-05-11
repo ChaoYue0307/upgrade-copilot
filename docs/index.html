@@ -382,6 +382,59 @@
         color: var(--muted);
       }
 
+      .comparison {
+        display: grid;
+        gap: 12px;
+      }
+
+      .compare-row {
+        display: grid;
+        grid-template-columns: 0.7fr 1.15fr 1.15fr;
+        gap: 12px;
+        align-items: stretch;
+      }
+
+      .compare-cell {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.78);
+        padding: 16px;
+      }
+
+      .compare-cell strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .compare-cell span {
+        color: var(--muted);
+      }
+
+      .compare-cell.win {
+        border-color: rgba(37, 99, 235, 0.32);
+        background: linear-gradient(180deg, #ffffff, #eef4ff);
+      }
+
+      .prompt-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .prompt-card {
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.78);
+        padding: 18px;
+      }
+
+      .prompt-card code {
+        display: block;
+        margin-top: 10px;
+        color: #1e293b;
+        white-space: normal;
+      }
+
       .screenshot {
         width: 100%;
         border: 1px solid var(--line);
@@ -462,6 +515,8 @@
         .grid,
         .workflow,
         .proof,
+        .compare-row,
+        .prompt-grid,
         .pricing-grid {
           grid-template-columns: 1fr;
         }
@@ -482,6 +537,7 @@
         <nav class="nav" aria-label="Primary navigation">
           <a href="#install">Install</a>
           <a href="#case-study">Case Study</a>
+          <a href="#compare">Compare</a>
           <a href="#skills">Skills</a>
           <a href="#paid">Paid Roadmap</a>
           <a href="#waitlist">Waitlist</a>
@@ -586,7 +642,7 @@ Sparse paths:</code></pre>
                 Upgrade Copilot turns that ambiguity into a staged migration plan.
               </p>
               <div class="cta-row">
-                <a class="button primary" href="case-studies/nextjs-starter-upgrade-triage.md">Read the case study</a>
+                <a class="button primary" href="case-studies/nextjs-starter-upgrade-triage.html">Read the case study</a>
               </div>
             </div>
             <div class="risk-list">
@@ -637,6 +693,60 @@ Sparse paths:</code></pre>
               <h3>Team upgrade program</h3>
               <p>Create a ranked upgrade backlog and 30/60/90-day roadmap that a team can fund.</p>
             </article>
+          </div>
+        </section>
+
+        <section id="compare">
+          <div class="section-title">
+            <span class="kicker">Compare</span>
+            <h2>Where Upgrade Copilot fits.</h2>
+            <p>It does not replace dependency bots or migration docs. It helps Codex turn those inputs into repo-specific upgrade execution.</p>
+          </div>
+          <div class="comparison">
+            <div class="compare-row">
+              <div class="compare-cell"><strong>Dependabot / Renovate</strong><span>Opens version bump PRs.</span></div>
+              <div class="compare-cell"><strong>Gap</strong><span>Often lacks repo-specific migration strategy, reviewer context, and rollout sequencing.</span></div>
+              <div class="compare-cell win"><strong>Upgrade Copilot</strong><span>Explains risk, groups upgrades, and proposes validation-backed PR batches.</span></div>
+            </div>
+            <div class="compare-row">
+              <div class="compare-cell"><strong>Generic Codex prompting</strong><span>Can help if the user writes the right prompt.</span></div>
+              <div class="compare-cell"><strong>Gap</strong><span>Easy to forget release notes, CI evidence, rollback notes, or PR boundaries.</span></div>
+              <div class="compare-cell win"><strong>Upgrade Copilot</strong><span>Loads a focused upgrade workflow every time, with assessment, mapping, CI rescue, and splitting.</span></div>
+            </div>
+            <div class="compare-row">
+              <div class="compare-cell"><strong>Migration docs</strong><span>Describe upstream changes.</span></div>
+              <div class="compare-cell"><strong>Gap</strong><span>They do not know which local files, configs, tests, and owners are affected.</span></div>
+              <div class="compare-cell win"><strong>Upgrade Copilot</strong><span>Maps upstream changes to the repository and turns them into concrete actions.</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="prompts">
+          <div class="section-title">
+            <span class="kicker">Prompt library</span>
+            <h2>Copy-paste prompts for common upgrade moments.</h2>
+            <p>These are the situations where the plugin should feel immediately useful.</p>
+          </div>
+          <div class="prompt-grid">
+            <div class="prompt-card">
+              <strong>Dependency triage</strong>
+              <code>Use Upgrade Copilot to find the safest dependency upgrades in this repo and split them into low-risk batches.</code>
+            </div>
+            <div class="prompt-card">
+              <strong>Framework migration</strong>
+              <code>Use Upgrade Copilot to map breaking changes before upgrading this Next.js app and propose a staged PR plan.</code>
+            </div>
+            <div class="prompt-card">
+              <strong>CI rescue</strong>
+              <code>Use Upgrade Copilot to diagnose why CI started failing after this dependency update and identify the smallest fix.</code>
+            </div>
+            <div class="prompt-card">
+              <strong>Team backlog</strong>
+              <code>Use Upgrade Copilot to build a 30/60/90-day upgrade backlog with risk, effort, and validation notes.</code>
+            </div>
+          </div>
+          <div class="cta-row">
+            <a class="button secondary" href="prompts.html">Open the full prompt library</a>
           </div>
         </section>
 
