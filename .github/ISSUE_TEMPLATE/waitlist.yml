@@ -1,0 +1,50 @@
+name: Join Premium Waitlist
+description: Tell us what upgrade problem you would pay to solve.
+title: "[Waitlist]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your interest in Upgrade Copilot premium features.
+
+        This helps shape the paid product: hosted upgrade scans, GitHub PR automation, CI failure analysis, and team dashboards.
+  - type: input
+    id: contact
+    attributes:
+      label: Contact
+      description: Email, GitHub username, or another way to reach you.
+      placeholder: you@example.com or @github-handle
+    validations:
+      required: true
+  - type: dropdown
+    id: buyer
+    attributes:
+      label: Who would use this?
+      options:
+        - Solo developer
+        - Startup team
+        - Engineering team
+        - Agency or consultancy
+        - Enterprise platform team
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: interest
+    attributes:
+      label: What would you pay for?
+      options:
+        - label: Repo upgrade risk report
+        - label: Curated breaking-change intelligence
+        - label: Automated GitHub upgrade PRs
+        - label: CI failure analysis after dependency changes
+        - label: Team upgrade dashboard
+        - label: Premium migration playbooks
+  - type: textarea
+    id: context
+    attributes:
+      label: What upgrade problem are you trying to solve?
+      description: Mention frameworks, languages, package managers, repo count, or recent upgrade pain.
+      placeholder: We have 12 Node repos and Next.js upgrades keep breaking CI...
+    validations:
+      required: true
