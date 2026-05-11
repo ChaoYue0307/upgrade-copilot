@@ -1,0 +1,40 @@
+{
+  "name": "upgrade-copilot",
+  "version": "0.1.0",
+  "description": "A Codex plugin for planning and executing framework, dependency, and codebase upgrades.",
+  "author": {
+    "name": "Chaoyue",
+    "url": "https://example.com"
+  },
+  "homepage": "https://example.com/upgrade-copilot",
+  "repository": "https://github.com/your-org/upgrade-copilot",
+  "license": "Commercial",
+  "keywords": [
+    "migration",
+    "upgrade",
+    "dependencies",
+    "refactoring",
+    "technical-debt"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Upgrade Copilot",
+    "shortDescription": "Plan and execute high-value codebase upgrades.",
+    "longDescription": "Upgrade Copilot helps engineering teams assess, plan, and implement framework and dependency upgrades in reviewable batches, with risk analysis, test strategy, and migration checklists.",
+    "developerName": "Chaoyue",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://example.com/upgrade-copilot",
+    "privacyPolicyURL": "https://example.com/privacy",
+    "termsOfServiceURL": "https://example.com/terms",
+    "brandColor": "#2563EB",
+    "defaultPrompt": [
+      "Use Upgrade Copilot to assess this repository for a dependency upgrade.",
+      "Use Upgrade Copilot to plan a safe Next.js migration.",
+      "Use Upgrade Copilot to split this framework upgrade into reviewable PRs."
+    ]
+  }
+}
