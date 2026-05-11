@@ -53,33 +53,35 @@ To enable LLM analysis, set `OPENAI_API_KEY` and pass:
 }
 ```
 
-## Deploy On Render
+## Saved Reports
 
-This repo includes a root-level `render.yaml` and a backend `Dockerfile`.
+The backend can save scan results locally under `backend/data/reports/`. This directory is ignored by git.
 
-[Deploy to Render](https://render.com/deploy?repo=https://github.com/ChaoYue0307/upgrade-copilot)
+Save a report while scanning:
 
-1. Create a new Render Blueprint from the GitHub repo.
-2. Set `GITHUB_TOKEN` for higher GitHub API limits and private repo access when authorized.
-3. Set `OPENAI_API_KEY` if you want `includeLlm: true` to produce premium Markdown analysis.
-4. Keep `ALLOWED_ORIGIN` pointed at the GitHub Pages origin or your custom frontend domain.
-5. After deployment, copy the backend URL into `docs/assets/config.js`:
+```bash
+curl -X POST http://127.0.0.1:8787/api/scan \
+  -H 'Content-Type: application/json' \
+  -d '{"repoUrl":"CodingGarden/react-ts-starter","includeLlm":false,"save":true}'
+```
+
+Load or list saved reports:
+
+```bash
+curl http://127.0.0.1:8787/api/reports
+curl http://127.0.0.1:8787/api/reports/ucr_your_report_id
+```
+
+To connect the static page to a local backend, update `docs/assets/config.js` or use `?backend=http://127.0.0.1:8787`:
 
 ```js
 window.UPGRADE_COPILOT_CONFIG = {
-  backendApiUrl: "https://upgrade-copilot-backend.onrender.com",
+  backendApiUrl: "http://127.0.0.1:8787",
   enableLlm: false,
+  saveBackendReports: true,
   backendTimeoutMs: 7000
 };
 ```
-
-You can also test a backend without editing the file by opening:
-
-```text
-https://chaoyue0307.github.io/upgrade-copilot/risk-report.html?backend=https://your-backend.example.com
-```
-
-See the public deployment guide at [`docs/deploy-render.md`](../docs/deploy-render.md).
 
 ## Environment Variables
 
@@ -88,6 +90,7 @@ See the public deployment guide at [`docs/deploy-render.md`](../docs/deploy-rend
 - `OPENAI_MODEL`: optional, defaults to `gpt-4.1-mini`.
 - `PORT`: optional, defaults to `8787`.
 - `ALLOWED_ORIGIN`: optional CORS origin, defaults to `*`.
+- `UPGRADE_COPILOT_DATA_DIR`: optional report storage directory, defaults to `backend/data`.
 
 ## Current Limits
 
@@ -99,9 +102,8 @@ See the public deployment guide at [`docs/deploy-render.md`](../docs/deploy-rend
 
 ## Next Backend Milestones
 
-1. Persist saved scan reports.
-2. Add GitHub OAuth/App installation.
-3. Add source-code search for affected files.
-4. Fetch release notes and migration docs.
-5. Create GitHub issues from the PR plan.
-6. Add Stripe checkout and account limits.
+1. Add source-code search for affected files.
+2. Fetch release notes and migration docs.
+3. Create GitHub issues from the PR plan.
+4. Add GitHub OAuth/App installation.
+5. Add Stripe checkout and account limits.

@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Backend prototype for Upgrade Copilot hosted repo scans and optional LLM upgrade reports.",
+  "description": "Local backend prototype for Upgrade Copilot repo scans, saved reports, and optional LLM upgrade reports.",
   "scripts": {
     "start": "node src/server.js",
-    "check": "node --check src/server.js && node --check src/scanner.js && node --check src/llm.js && node --check scripts/smoke-scan.js",
+    "check": "node --check src/server.js && node --check src/scanner.js && node --check src/llm.js && node --check src/reports.js && node --check scripts/smoke-scan.js",
     "smoke": "node scripts/smoke-scan.js"
   },
   "engines": {

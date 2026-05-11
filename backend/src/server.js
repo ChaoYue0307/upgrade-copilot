@@ -2,6 +2,7 @@ import http from "node:http";
 import { createHash } from "node:crypto";
 import { scanRepository } from "./scanner.js";
 import { generateLlmAnalysis } from "./llm.js";
+import { getReport, listReports, saveReport, toReportSummary } from "./reports.js";
 
 const PORT = Number(process.env.PORT || 8787);
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "*";
@@ -21,19 +22,40 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    const reportIdMatch = req.url.match(/^\/api\/reports\/(ucr_[a-f0-9]{16,32})$/);
+    if (req.method === "GET" && reportIdMatch) {
+      const report = await getReport(reportIdMatch[1]);
+      if (!report) {
+        sendJson(res, 404, { ok: false, error: "Report not found" });
+        return;
+      }
+      sendJson(res, 200, { ok: true, report });
+      return;
+    }
+
+    if (req.method === "GET" && req.url.startsWith("/api/reports")) {
+      const url = new URL(req.url, `http://${req.headers.host || "127.0.0.1"}`);
+      const limit = Math.min(Number(url.searchParams.get("limit") || 20), 100);
+      sendJson(res, 200, { ok: true, reports: await listReports(limit) });
+      return;
+    }
+
     if (req.method === "POST" && req.url === "/api/scan") {
       const body = await readJsonBody(req);
       const scan = await scanRepository({ repoUrl: body.repoUrl });
       const llm = body.includeLlm ? await generateLlmAnalysis(scan) : { enabled: false, markdown: null };
       const reportId = createReportId(scan);
-      sendJson(res, 200, {
+      const report = {
         ok: true,
         reportId,
-        reportUrl: null,
+        reportUrl: body.save ? `/api/reports/${reportId}` : null,
         saved: false,
+        createdAt: new Date().toISOString(),
         scan,
         llm
-      });
+      };
+      const payload = body.save ? await saveReport(report) : report;
+      sendJson(res, 200, { ...payload, summary: toReportSummary(payload) });
       return;
     }
 
@@ -77,7 +99,8 @@ function createReportId(scan) {
     scan.readiness,
     scan.summary?.dependencies,
     scan.summary?.findings,
-    new Date().toISOString().slice(0, 10)
+    new Date().toISOString(),
+    Math.random().toString(16).slice(2)
   ].join(":");
   return `ucr_${createHash("sha256").update(seed).digest("hex").slice(0, 16)}`;
 }

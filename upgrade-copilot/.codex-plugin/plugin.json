@@ -1,6 +1,6 @@
 {
   "name": "upgrade-copilot",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "A Codex plugin that makes risky dependency and framework upgrades easier to assess, split, validate, and ship.",
   "author": {
     "name": "Chaoyue",
@@ -25,7 +25,7 @@
   "interface": {
     "displayName": "Upgrade Copilot",
     "shortDescription": "Make dependency upgrades reviewable again.",
-    "longDescription": "Upgrade Copilot helps developers answer the hard upgrade questions: what is safe to update, what will break, why CI is failing, and how to split the work into reviewable PRs. It combines repository inspection, release-note research, risk scoring, migration plans, and implementation discipline, with public case studies, a hosted risk-report prototype, and a one-click deployable backend scan API that point toward premium migration intelligence and team upgrade programs.",
+    "longDescription": "Upgrade Copilot helps developers answer the hard upgrade questions: what is safe to update, what will break, why CI is failing, and how to split the work into reviewable PRs. It combines repository inspection, release-note research, risk scoring, migration plans, and implementation discipline, with public case studies, a risk-report prototype, and a local-first backend scan API with saved reports that point toward premium migration intelligence and team upgrade programs.",
     "developerName": "Chaoyue",
     "category": "Developer Tools",
     "capabilities": [

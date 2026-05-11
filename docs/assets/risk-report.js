@@ -119,7 +119,7 @@ const registryCache = new Map();
 const configuredBackendApiUrl = getBackendApiUrl();
 const backendTimeoutMs = Number(window.UPGRADE_COPILOT_CONFIG?.backendTimeoutMs || 7000);
 
-updateScanMode(configuredBackendApiUrl ? "hosted backend" : "browser");
+updateScanMode(configuredBackendApiUrl ? "backend" : "browser");
 
 document.querySelectorAll("[data-demo]").forEach((demo) => {
   demo.addEventListener("click", () => {
@@ -204,15 +204,40 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-const initialRepo = new URLSearchParams(window.location.search).get("repo");
-if (initialRepo) {
+const initialParams = new URLSearchParams(window.location.search);
+const initialReportId = initialParams.get("report");
+const initialRepo = initialParams.get("repo");
+if (initialReportId) {
+  loadSavedReport(initialReportId);
+} else if (initialRepo) {
   input.value = initialRepo;
   form.requestSubmit();
 }
 
+async function loadSavedReport(reportId) {
+  const backendApiUrl = getBackendApiUrl();
+  if (!backendApiUrl) {
+    renderUnsupportedReport("Saved report links require a configured backend URL or a ?backend= URL parameter.", null);
+    return;
+  }
+  button.disabled = true;
+  button.textContent = "Loading report...";
+  updateScanMode("backend");
+  try {
+    const payload = await fetchJsonWithTimeout(`${backendApiUrl.replace(/\/$/, "")}/api/reports/${encodeURIComponent(reportId)}`, backendTimeoutMs);
+    if (!payload.ok || !payload.report) throw new Error(payload.error || "Saved report unavailable");
+    renderReport(normalizeBackendReport(payload.report));
+  } catch (error) {
+    renderUnsupportedReport(error.message || "Could not load this saved report.", null);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Generate report";
+  }
+}
+
 async function runScan(parsed) {
   const backendApiUrl = getBackendApiUrl();
-  updateScanMode(backendApiUrl ? "hosted backend" : "browser");
+  updateScanMode(backendApiUrl ? "backend" : "browser");
   if (!backendApiUrl) return scanRepo(parsed.owner, parsed.repo);
 
   let timeout = null;
@@ -225,7 +250,8 @@ async function runScan(parsed) {
       signal: controller.signal,
       body: JSON.stringify({
         repoUrl: `${parsed.owner}/${parsed.repo}`,
-        includeLlm: Boolean(window.UPGRADE_COPILOT_CONFIG?.enableLlm)
+        includeLlm: Boolean(window.UPGRADE_COPILOT_CONFIG?.enableLlm),
+        save: window.UPGRADE_COPILOT_CONFIG?.saveBackendReports !== false
       })
     });
     if (!response.ok) {
@@ -237,11 +263,23 @@ async function runScan(parsed) {
     }
     return normalizeBackendReport(payload);
   } catch (error) {
-    console.warn("Hosted backend scan failed; falling back to browser scanner.", error);
+    console.warn("Backend scan failed; falling back to browser scanner.", error);
     updateScanMode("browser fallback");
     return scanRepo(parsed.owner, parsed.repo);
   } finally {
     if (timeout) window.clearTimeout(timeout);
+  }
+}
+
+async function fetchJsonWithTimeout(url, timeoutMs) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) throw new Error(`Backend returned ${response.status}`);
+    return response.json();
+  } finally {
+    window.clearTimeout(timeout);
   }
 }
 
@@ -734,6 +772,8 @@ function normalizeBackendReport(payload) {
     reportId: payload.reportId,
     reportUrl: payload.reportUrl,
     saved: Boolean(payload.saved),
+    savedAt: payload.savedAt || null,
+    createdAt: payload.createdAt || null,
     llm: payload.llm || null,
     backendPrPlan: scan.prPlan || [],
     validationCommands: scan.validationCommands || []
@@ -770,7 +810,7 @@ function renderReport(report) {
   renderUpgrades(report.notable);
   renderFilesScanned(report);
   renderRegistryCoverage(report);
-  shareUrlInput.value = window.location.href;
+  shareUrlInput.value = shareUrlForReport(report);
   waitlistStatus.textContent = report.unsupported ? "Use this form to request support for this stack or repo layout." : "Opens a prefilled GitHub issue so the request is easy to track.";
   result.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -840,7 +880,7 @@ function renderRegistryCoverage(report) {
   const container = document.querySelector("#registryCoverage");
   const stats = report.lookupStats || { attempted: 0, succeeded: 0, failed: 0 };
   const lockfileText = report.lockfiles?.length ? `${report.lockfiles.length} lockfile(s) found` : "No shallow lockfile found";
-  const scanModeText = report.backend ? `hosted backend${report.saved ? " · saved" : " · unsaved"}` : "browser";
+  const scanModeText = report.backend ? `backend${report.saved ? " · saved" : " · unsaved"}` : "browser";
   container.innerHTML = "";
   [
     ["Registry lookups", `${stats.succeeded}/${stats.attempted} succeeded`],
@@ -859,7 +899,18 @@ function renderRegistryCoverage(report) {
 function updateRepoParam(parsed) {
   const url = new URL(window.location.href);
   url.searchParams.set("repo", `${parsed.owner}/${parsed.repo}`);
+  url.searchParams.delete("report");
   window.history.replaceState({}, "", url);
+}
+
+function shareUrlForReport(report) {
+  const url = new URL(window.location.href);
+  if (report.backend && report.saved && report.reportId) {
+    url.searchParams.set("report", report.reportId);
+    url.searchParams.delete("repo");
+    window.history.replaceState({}, "", url);
+  }
+  return url.toString();
 }
 
 function buildMarkdown(report) {
@@ -868,7 +919,8 @@ function buildMarkdown(report) {
     "",
     report.metadata.html_url ? `Repository: ${report.metadata.html_url}` : "",
     report.reportId ? `Report ID: ${report.reportId}` : "",
-    report.backend ? "Scan mode: hosted backend" : "Scan mode: browser",
+    report.savedAt ? `Saved at: ${report.savedAt}` : "",
+    report.backend ? "Scan mode: backend" : "Scan mode: browser",
     `Readiness: ${report.unsupported ? "needs support" : report.readiness}`,
     `Default branch: ${report.metadata.default_branch || "unknown"}`,
     "",

@@ -2,14 +2,14 @@
 
 Upgrade Copilot now includes a first backend scan API under [`backend/`](https://github.com/ChaoYue0307/upgrade-copilot/tree/main/backend).
 
-The static risk report page remains the public lead magnet. The backend prototype is the path toward a paid product:
+The static risk report page remains the public lead magnet. The backend prototype is a local-first path toward a paid product:
 
 - server-side GitHub repo scans
 - better rate limits with `GITHUB_TOKEN`
 - private repo support when authorized
 - lockfile and CI evidence
 - optional LLM-generated premium analysis
-- future saved reports and GitHub issue/PR automation
+- saved reports and future GitHub issue/PR automation
 
 ## API Shape
 
@@ -19,19 +19,28 @@ Content-Type: application/json
 
 {
   "repoUrl": "CodingGarden/react-ts-starter",
-  "includeLlm": false
+  "includeLlm": false,
+  "save": true
 }
 ```
 
-The backend response also includes a `reportId` placeholder. Reports are not persisted yet, but the response shape is ready for saved reports:
+When `save` is true, the backend persists the report under `backend/data/reports/`:
 
 ```json
 {
   "ok": true,
   "reportId": "ucr_...",
   "reportUrl": null,
-  "saved": false
+  "saved": true,
+  "savedAt": "2026-05-11T..."
 }
+```
+
+Saved report endpoints:
+
+```http
+GET /api/reports
+GET /api/reports/ucr_your_report_id
 ```
 
 The response contains deterministic scanner output and, when requested/configured, an `llm` report:
@@ -66,31 +75,23 @@ npm run smoke
 npm start
 ```
 
-## Deployment
+## Local Frontend Integration
 
-The repo includes:
-
-- [`render.yaml`](https://github.com/ChaoYue0307/upgrade-copilot/blob/main/render.yaml)
-- [`backend/Dockerfile`](https://github.com/ChaoYue0307/upgrade-copilot/blob/main/backend/Dockerfile)
-
-[Deploy to Render](https://render.com/deploy?repo=https://github.com/ChaoYue0307/upgrade-copilot)
-
-Full guide: [`deploy-render.md`](deploy-render.md).
-
-After deploying the backend, update [`docs/assets/config.js`](https://github.com/ChaoYue0307/upgrade-copilot/blob/main/docs/assets/config.js):
+After starting the backend, update [`docs/assets/config.js`](https://github.com/ChaoYue0307/upgrade-copilot/blob/main/docs/assets/config.js):
 
 ```js
 window.UPGRADE_COPILOT_CONFIG = {
-  backendApiUrl: "https://your-backend.example.com",
+  backendApiUrl: "http://127.0.0.1:8787",
   enableLlm: false,
+  saveBackendReports: true,
   backendTimeoutMs: 7000
 };
 ```
 
-For temporary testing, pass the backend URL in the page URL:
+For temporary testing, pass the local backend URL in the page URL:
 
 ```text
-https://chaoyue0307.github.io/upgrade-copilot/risk-report.html?backend=https://your-backend.example.com
+http://127.0.0.1:8768/risk-report.html?backend=http://127.0.0.1:8787
 ```
 
 ## Why This Matters Commercially
