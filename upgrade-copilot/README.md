@@ -41,6 +41,14 @@ Use Upgrade Copilot to build a team upgrade backlog for this repository.
 - It asks Codex to produce reviewer-ready plans with validation and rollback notes.
 - It creates a clear path to paid features without blocking the free plugin.
 
+## Public Proof And Prototype
+
+- [Landing page](https://chaoyue0307.github.io/upgrade-copilot/)
+- [Risk report prototype](https://chaoyue0307.github.io/upgrade-copilot/risk-report.html)
+- [Next.js case study](https://chaoyue0307.github.io/upgrade-copilot/case-studies/nextjs-starter-upgrade-triage.html)
+- [React/Vite case study](https://chaoyue0307.github.io/upgrade-copilot/case-studies/react-vite-starter-upgrade-triage.html)
+- [Django case study](https://chaoyue0307.github.io/upgrade-copilot/case-studies/django-template-upgrade-triage.html)
+
 ## Future Paid Features
 
 - Hosted migration intelligence: curated breaking-change rules for popular stacks.

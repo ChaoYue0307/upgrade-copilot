@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Upgrade Copilot Risk Report Prototype</title>
+    <meta name="description" content="Paste a public GitHub repository URL and get a lightweight upgrade risk report." />
+    <link rel="icon" href="assets/icon.png" />
+    <meta property="og:title" content="Upgrade Copilot Risk Report" />
+    <meta property="og:description" content="A first premium prototype for dependency and framework upgrade triage." />
+    <meta property="og:image" content="https://chaoyue0307.github.io/upgrade-copilot/assets/social-preview.png" />
+    <style>
+      :root {
+        --bg: #f7faff;
+        --card: #ffffff;
+        --ink: #0f172a;
+        --muted: #526071;
+        --line: #dce6f2;
+        --blue: #2563eb;
+        --blue-dark: #1d4ed8;
+        --green: #047857;
+        --amber: #b45309;
+        --red: #b42318;
+        --shadow: 0 30px 90px rgba(15, 23, 42, 0.13);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 12% 8%, rgba(37, 99, 235, 0.22), transparent 30rem),
+          radial-gradient(circle at 88% 0%, rgba(14, 165, 233, 0.18), transparent 30rem),
+          linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.55;
+      }
+      a { color: var(--blue); text-decoration: none; }
+      .page { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
+      header { display: flex; align-items: center; justify-content: space-between; padding: 28px 0; }
+      .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; color: var(--ink); }
+      .brand img { width: 42px; height: 42px; border-radius: 12px; }
+      nav { display: flex; gap: 16px; font-size: 14px; }
+      .hero { padding: 52px 0 34px; display: grid; grid-template-columns: 1fr 0.9fr; gap: 32px; align-items: center; }
+      .kicker { color: var(--blue); font-size: 13px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+      h1 { margin: 12px 0 18px; font-size: clamp(44px, 7vw, 76px); line-height: .95; letter-spacing: -.06em; }
+      .lead { color: var(--muted); font-size: 20px; max-width: 700px; }
+      .panel, .result, .card {
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: rgba(255, 255, 255, .86);
+        box-shadow: var(--shadow);
+      }
+      .panel { padding: 22px; }
+      label { display: block; margin-bottom: 8px; font-weight: 800; }
+      input {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 15px 16px;
+        font: inherit;
+        color: var(--ink);
+        background: #fff;
+      }
+      .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+      button, .button {
+        border: 0;
+        border-radius: 999px;
+        padding: 12px 16px;
+        background: var(--blue);
+        color: #fff;
+        font-weight: 850;
+        cursor: pointer;
+        font: inherit;
+        box-shadow: 0 12px 28px rgba(37,99,235,.24);
+      }
+      button.secondary, .button.secondary { background: #eaf1ff; color: var(--blue-dark); box-shadow: none; }
+      button:disabled { cursor: progress; opacity: .74; }
+      .note { margin-top: 12px; color: var(--muted); font-size: 14px; }
+      .result { margin: 24px 0 0; padding: 24px; }
+      .result[hidden] { display: none; }
+      .status { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; font-size: 13px; font-weight: 850; }
+      .status.green { background: #ecfdf5; color: var(--green); }
+      .status.yellow { background: #fff7ed; color: var(--amber); }
+      .status.red { background: #fff1f2; color: var(--red); }
+      .summary { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin: 18px 0; }
+      .metric { border: 1px solid var(--line); border-radius: 18px; padding: 14px; background: #fff; }
+      .metric strong { display: block; font-size: 24px; letter-spacing: -.04em; }
+      .metric span { color: var(--muted); font-size: 13px; }
+      .grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; margin-top: 18px; }
+      .card { box-shadow: none; padding: 18px; }
+      .card h3 { margin: 0 0 10px; font-size: 20px; letter-spacing: -.02em; }
+      .finding { border-top: 1px solid var(--line); padding: 14px 0; }
+      .finding:first-of-type { border-top: 0; padding-top: 0; }
+      .finding strong { display: block; }
+      .finding span { display: block; color: var(--muted); margin-top: 3px; }
+      .tag { display: inline-flex; margin-top: 8px; border-radius: 999px; padding: 5px 9px; font-size: 12px; font-weight: 800; background: #f1f5f9; color: #334155; }
+      .plan { margin: 0; padding-left: 20px; color: var(--muted); }
+      .plan li { margin: 8px 0; }
+      .upgrade-list { display: grid; gap: 8px; }
+      .upgrade { display: flex; justify-content: space-between; gap: 12px; border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: #fff; }
+      .upgrade code { color: var(--ink); font-weight: 800; }
+      .upgrade span { color: var(--muted); text-align: right; }
+      .cta { margin: 28px 0 54px; padding: 24px; border-radius: 28px; background: linear-gradient(135deg, #0f172a, #1d4ed8); color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+      .cta p { color: rgba(255,255,255,.78); margin: 6px 0 0; }
+      .cta .button { background: #fff; color: #1d4ed8; box-shadow: none; white-space: nowrap; }
+      footer { color: var(--muted); padding: 0 0 44px; }
+      @media (max-width: 900px) {
+        .hero, .grid { grid-template-columns: 1fr; }
+        .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .cta { align-items: flex-start; flex-direction: column; }
+      }
+      @media (max-width: 600px) {
+        header { align-items: flex-start; flex-direction: column; gap: 14px; }
+        .summary { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <a class="brand" href="./"><img src="assets/icon.png" alt="Upgrade Copilot icon" /><span>Upgrade Copilot</span></a>
+        <nav>
+          <a href="./">Home</a>
+          <a href="prompts.html">Prompts</a>
+          <a href="roadmap.md">Roadmap</a>
+        </nav>
+      </header>
+      <main>
+        <section class="hero">
+          <div>
+            <span class="kicker">Premium prototype</span>
+            <h1>Instant upgrade risk report.</h1>
+            <p class="lead">Paste a public GitHub repo URL. This prototype fetches dependency files directly from GitHub and turns them into a lightweight upgrade risk report.</p>
+          </div>
+          <form class="panel" id="reportForm">
+            <label for="repoUrl">Public GitHub repository URL</label>
+            <input id="repoUrl" name="repoUrl" placeholder="https://github.com/CodingGarden/react-ts-starter" value="https://github.com/CodingGarden/react-ts-starter" />
+            <div class="actions">
+              <button id="submitButton" type="submit">Generate report</button>
+              <button class="secondary" type="button" data-demo="https://github.com/CodingGarden/react-ts-starter">React demo</button>
+              <button class="secondary" type="button" data-demo="https://github.com/jpadilla/django-project-template">Django demo</button>
+            </div>
+            <p class="note">No server yet: this first version runs in your browser and uses public GitHub raw files. Future premium versions can add authenticated scans, PR creation, saved reports, and team dashboards.</p>
+          </form>
+        </section>
+
+        <section class="result" id="result" hidden>
+          <span class="status yellow" id="statusBadge">Readiness: yellow</span>
+          <h2 id="reportTitle">Upgrade report</h2>
+          <p class="lead" id="reportLead"></p>
+          <div class="summary">
+            <div class="metric"><strong id="fileCount">0</strong><span>dependency files found</span></div>
+            <div class="metric"><strong id="dependencyCount">0</strong><span>dependencies scanned</span></div>
+            <div class="metric"><strong id="riskCount">0</strong><span>risk signals</span></div>
+            <div class="metric"><strong id="majorCount">0</strong><span>major-version candidates</span></div>
+          </div>
+          <div class="grid">
+            <div class="card">
+              <h3>Findings</h3>
+              <div id="findings"></div>
+            </div>
+            <div class="card">
+              <h3>Suggested PR plan</h3>
+              <ol class="plan" id="plan"></ol>
+            </div>
+          </div>
+          <div class="grid">
+            <div class="card">
+              <h3>Notable packages</h3>
+              <div class="upgrade-list" id="upgrades"></div>
+            </div>
+            <div class="card">
+              <h3>Premium next step</h3>
+              <p>This browser prototype is the lead magnet. The paid version can run authenticated scans, compare lockfiles, open GitHub issues, and generate PR-sized migration plans.</p>
+              <a class="button secondary" href="https://github.com/ChaoYue0307/upgrade-copilot/issues/new?template=waitlist.yml">Join the premium waitlist</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="cta">
+          <div>
+            <span class="kicker" style="color:#bfdbfe">Prototype business model</span>
+            <h2 style="margin:8px 0 0">Free scan, paid automation.</h2>
+            <p>Use the public report to show value. Charge teams for private repo access, saved reports, PR automation, and ongoing upgrade programs.</p>
+          </div>
+          <a class="button" href="monetization.md">View monetization plan</a>
+        </section>
+      </main>
+      <footer>Prototype only. Results are heuristic and should be validated with the repository's tests and maintainers' release notes.</footer>
+    </div>
+
+    <script>
+      const KNOWN = {
+        react: { latest: "19.2.6", family: "React", risk: "React major upgrade should be separated from tooling updates." },
+        "react-dom": { latest: "19.2.6", family: "React", risk: "React DOM should move with React and UI test validation." },
+        "react-router-dom": { latest: "7.15.0", family: "React Router", risk: "Router major upgrade can change application behavior." },
+        vite: { latest: "8.0.12", family: "Vite", risk: "Vite major upgrade should be validated with build and dev-server smoke checks." },
+        vitest: { latest: "4.1.5", family: "Vitest", risk: "Vitest major upgrade can affect jsdom, globals, and setup files." },
+        typescript: { latest: "6.0.3", family: "TypeScript", risk: "TypeScript major upgrade can expose latent type errors." },
+        eslint: { latest: "10.3.0", family: "ESLint", risk: "ESLint major upgrades should be isolated from runtime package changes." },
+        "@typescript-eslint/eslint-plugin": { latest: "8.59.2", family: "ESLint", risk: "TypeScript ESLint should move with parser and ESLint config updates." },
+        "@typescript-eslint/parser": { latest: "8.59.2", family: "ESLint", risk: "Parser upgrades should be kept with ESLint compatibility work." },
+        jsdom: { latest: "29.1.1", family: "Testing", risk: "jsdom changes can break browser-like test assumptions." },
+        Django: { latest: "6.0.5", family: "Django", risk: "Django major jumps should usually move through the current LTS first." },
+        "django-configurations": { latest: "2.5.1", family: "Django ecosystem", risk: "Settings orchestration should be tested with generated project config." },
+        "django-debug-toolbar": { latest: "6.3.0", family: "Django ecosystem", risk: "Debug toolbar compatibility depends on the selected Django target." },
+        "dj-database-url": { latest: "3.1.2", family: "Database config", risk: "Database URL parsing should be validated in staging-like config." },
+        gunicorn: { latest: "26.0.0", family: "Deployment", risk: "Deployment packages should be tested separately from framework semantics." },
+        whitenoise: { latest: "6.12.0", family: "Static files", risk: "WhiteNoise changes should be validated with collectstatic and production settings." },
+        Werkzeug: { latest: "3.1.4", family: "Development tooling", risk: "Werkzeug major upgrade can affect local debug tooling." }
+      };
+
+      const form = document.querySelector("#reportForm");
+      const input = document.querySelector("#repoUrl");
+      const button = document.querySelector("#submitButton");
+      const result = document.querySelector("#result");
+
+      document.querySelectorAll("[data-demo]").forEach((demo) => {
+        demo.addEventListener("click", () => {
+          input.value = demo.dataset.demo;
+          form.requestSubmit();
+        });
+      });
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const parsed = parseRepo(input.value);
+        if (!parsed) {
+          showError("Please enter a GitHub repository URL like https://github.com/owner/repo.");
+          return;
+        }
+        button.disabled = true;
+        button.textContent = "Scanning...";
+        try {
+          const report = await scanRepo(parsed.owner, parsed.repo);
+          renderReport(report);
+        } catch (error) {
+          showError(error.message || "Could not scan this repository.");
+        } finally {
+          button.disabled = false;
+          button.textContent = "Generate report";
+        }
+      });
+
+      function parseRepo(value) {
+        try {
+          const url = new URL(value.trim());
+          const [, owner, repo] = url.pathname.split("/");
+          if (url.hostname !== "github.com" || !owner || !repo) return null;
+          return { owner, repo: repo.replace(/\.git$/, "") };
+        } catch {
+          const match = value.trim().match(/^([\w.-]+)\/([\w.-]+)$/);
+          return match ? { owner: match[1], repo: match[2] } : null;
+        }
+      }
+
+      async function scanRepo(owner, repo) {
+        const metadata = await fetchJson(`https://api.github.com/repos/${owner}/${repo}`);
+        const tree = await fetchJson(`https://api.github.com/repos/${owner}/${repo}/git/trees/${encodeURIComponent(metadata.default_branch)}?recursive=1`);
+        const availablePaths = new Set((tree.tree || []).filter((item) => item.type === "blob").map((item) => item.path));
+        const candidates = ["package.json", "Pipfile"];
+        const files = [];
+        for (const path of candidates) {
+          if (!availablePaths.has(path)) continue;
+          const text = await fetchRaw(owner, repo, metadata.default_branch, path);
+          if (text) files.push({ path, branch: metadata.default_branch, text });
+        }
+        if (!files.length) {
+          throw new Error("No package.json or Pipfile was found at the repository root on the default branch.");
+        }
+        const dependencies = files.flatMap(parseDependencyFile);
+        const notable = dependencies
+          .map((dep) => ({ ...dep, known: KNOWN[dep.name], majorGap: calculateMajorGap(dep.version, KNOWN[dep.name]?.latest) }))
+          .filter((dep) => dep.known)
+          .sort((a, b) => b.majorGap - a.majorGap || a.name.localeCompare(b.name));
+        const findings = buildFindings(files, notable);
+        const majorCount = notable.filter((dep) => dep.majorGap > 0).length;
+        const readiness = findings.length >= 6 || majorCount >= 5 ? "red" : findings.length >= 3 || majorCount >= 2 ? "yellow" : "green";
+        return { metadata, files, dependencies, notable, findings, majorCount, readiness };
+      }
+
+      async function fetchJson(url) {
+        const response = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
+        if (!response.ok) throw new Error(`GitHub returned ${response.status}. Try a public repository URL.`);
+        return response.json();
+      }
+
+      async function fetchRaw(owner, repo, branch, path) {
+        const url = `https://raw.githubusercontent.com/${owner}/${repo}/${encodeURIComponent(branch)}/${path}`;
+        const response = await fetch(url);
+        return response.ok ? response.text() : null;
+      }
+
+      function parseDependencyFile(file) {
+        if (file.path === "package.json") {
+          const json = JSON.parse(file.text);
+          return ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"].flatMap((section) =>
+            Object.entries(json[section] || {}).map(([name, version]) => ({ name, version, section, file: file.path }))
+          );
+        }
+        if (file.path === "Pipfile") {
+          const deps = [];
+          let section = "";
+          for (const line of file.text.split("\n")) {
+            const sectionMatch = line.match(/^\[(.+)]$/);
+            if (sectionMatch) section = sectionMatch[1];
+            const depMatch = line.match(/^([A-Za-z0-9_.-]+)\s*=\s*["']?([^"'\n]+)["']?/);
+            if (depMatch && ["packages", "dev-packages"].includes(section)) {
+              deps.push({ name: depMatch[1], version: depMatch[2].trim(), section, file: file.path });
+            }
+          }
+          return deps;
+        }
+        return [];
+      }
+
+      function calculateMajorGap(current, latest) {
+        if (!current || !latest) return 0;
+        const currentMajor = Number(String(current).replace(/^[^\d]*/, "").split(".")[0]);
+        const latestMajor = Number(String(latest).replace(/^[^\d]*/, "").split(".")[0]);
+        if (Number.isNaN(currentMajor) || Number.isNaN(latestMajor)) return 0;
+        return Math.max(0, latestMajor - currentMajor);
+      }
+
+      function buildFindings(files, notable) {
+        const findings = [];
+        const hasPackage = files.some((file) => file.path === "package.json");
+        const hasPipfile = files.some((file) => file.path === "Pipfile");
+        const families = new Set(notable.map((dep) => dep.known.family));
+        if (hasPackage && families.has("Vite") && families.has("Vitest")) {
+          findings.push({ title: "Tooling batch required", text: "Vite and Vitest should move together, with tests and build output checked before runtime majors.", severity: "high" });
+        }
+        if (families.has("ESLint") && notable.some((dep) => dep.name === "typescript")) {
+          findings.push({ title: "Lint and type noise risk", text: "ESLint, TypeScript, and @typescript-eslint can produce noisy failures if upgraded in the same PR as app dependencies.", severity: "medium" });
+        }
+        if (families.has("React") && notable.some((dep) => dep.name === "react-router-dom")) {
+          findings.push({ title: "Separate UI behavior from route behavior", text: "React and React Router majors should be separate validation surfaces.", severity: "medium" });
+        }
+        if (hasPipfile && notable.some((dep) => dep.name === "Django")) {
+          findings.push({ title: "Framework major migration", text: "Django should move through a stable LTS path before exploring the newest major.", severity: "high" });
+        }
+        if (families.has("Static files") || families.has("Deployment")) {
+          findings.push({ title: "Deployment validation needed", text: "WhiteNoise, Gunicorn, and production settings should be tested separately from framework semantics.", severity: "medium" });
+        }
+        for (const dep of notable.filter((item) => item.majorGap > 0).slice(0, 4)) {
+          findings.push({ title: `${dep.name} major candidate`, text: `${dep.version} -> ${dep.known.latest}. ${dep.known.risk}`, severity: dep.majorGap >= 2 ? "high" : "medium" });
+        }
+        return findings;
+      }
+
+      function renderReport(report) {
+        result.hidden = false;
+        const status = document.querySelector("#statusBadge");
+        status.className = `status ${report.readiness}`;
+        status.textContent = `Readiness: ${report.readiness}`;
+        document.querySelector("#reportTitle").textContent = `${report.metadata.full_name} upgrade report`;
+        document.querySelector("#reportLead").textContent = `${report.metadata.description || "Public GitHub repository"} · ${report.metadata.stargazers_count} stars · default branch ${report.metadata.default_branch}`;
+        document.querySelector("#fileCount").textContent = report.files.length;
+        document.querySelector("#dependencyCount").textContent = report.dependencies.length;
+        document.querySelector("#riskCount").textContent = report.findings.length;
+        document.querySelector("#majorCount").textContent = report.majorCount;
+        renderFindings(report.findings);
+        renderPlan(report);
+        renderUpgrades(report.notable);
+        result.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function renderFindings(findings) {
+        const container = document.querySelector("#findings");
+        container.innerHTML = findings.length ? "" : "<p>No known high-signal upgrade risks found in this prototype scan.</p>";
+        for (const finding of findings) {
+          const div = document.createElement("div");
+          div.className = "finding";
+          div.innerHTML = `<strong>${escapeHtml(finding.title)}</strong><span>${escapeHtml(finding.text)}</span><em class="tag">${escapeHtml(finding.severity)} risk</em>`;
+          container.appendChild(div);
+        }
+      }
+
+      function renderPlan(report) {
+        const plan = document.querySelector("#plan");
+        const items = report.files.some((file) => file.path === "Pipfile")
+          ? ["Generate a project from the template and establish smoke tests.", "Move Django through the current LTS target before newer majors.", "Upgrade Django ecosystem packages in a separate PR.", "Upgrade deployment packages and validate production settings.", "Create saved reports and GitHub issues in the premium workflow."]
+          : ["Run baseline typecheck, lint, tests, and build.", "Upgrade build/test tooling first.", "Handle lint and TypeScript config movement separately.", "Upgrade runtime framework and router packages after tooling is green.", "Create saved reports and GitHub issues in the premium workflow."];
+        plan.innerHTML = "";
+        for (const item of items) {
+          const li = document.createElement("li");
+          li.textContent = item;
+          plan.appendChild(li);
+        }
+      }
+
+      function renderUpgrades(notable) {
+        const container = document.querySelector("#upgrades");
+        container.innerHTML = notable.length ? "" : "<p>No packages matched the prototype's known upgrade catalog.</p>";
+        for (const dep of notable.slice(0, 12)) {
+          const div = document.createElement("div");
+          div.className = "upgrade";
+          div.innerHTML = `<code>${escapeHtml(dep.name)}</code><span>${escapeHtml(dep.version)} -> ${escapeHtml(dep.known.latest)}</span>`;
+          container.appendChild(div);
+        }
+      }
+
+      function showError(message) {
+        result.hidden = false;
+        document.querySelector("#statusBadge").className = "status red";
+        document.querySelector("#statusBadge").textContent = "Scan failed";
+        document.querySelector("#reportTitle").textContent = "Could not generate report";
+        document.querySelector("#reportLead").textContent = message;
+        document.querySelector("#fileCount").textContent = "0";
+        document.querySelector("#dependencyCount").textContent = "0";
+        document.querySelector("#riskCount").textContent = "0";
+        document.querySelector("#majorCount").textContent = "0";
+        document.querySelector("#findings").innerHTML = "";
+        document.querySelector("#plan").innerHTML = "";
+        document.querySelector("#upgrades").innerHTML = "";
+        result.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
+      }
+    </script>
+  </body>
+</html>

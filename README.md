@@ -4,8 +4,9 @@
 
 [Install page](https://chaoyue0307.github.io/upgrade-copilot/) ·
 [Premium waitlist](https://github.com/ChaoYue0307/upgrade-copilot/issues/new?template=waitlist.yml) ·
+[Risk report prototype](https://chaoyue0307.github.io/upgrade-copilot/risk-report.html) ·
 [Roadmap](docs/roadmap.md) ·
-[Case study](https://chaoyue0307.github.io/upgrade-copilot/case-studies/nextjs-starter-upgrade-triage.html) ·
+[Case studies](https://chaoyue0307.github.io/upgrade-copilot/#case-study) ·
 [Prompt library](https://chaoyue0307.github.io/upgrade-copilot/prompts.html)
 
 ![Upgrade Copilot social preview](docs/assets/social-preview.png)
@@ -60,13 +61,19 @@ Use Upgrade Copilot to build a team upgrade backlog for this repository.
 | `migration-pr-splitter` | Split migration work into reviewable PRs with rollback notes. |
 | `team-upgrade-program` | Create an upgrade backlog and 30/60/90-day roadmap. |
 
-## Demo Case Study
+## Demo Case Studies
 
-I browsed a real public repo, [`pbteja1998/nextjs-starter`](https://github.com/pbteja1998/nextjs-starter), and wrote an Upgrade Copilot-style assessment:
+I browsed real public repos and wrote Upgrade Copilot-style assessments:
 
-[`Next.js Starter Upgrade Triage`](https://chaoyue0307.github.io/upgrade-copilot/case-studies/nextjs-starter-upgrade-triage.html)
+- [`Next.js Starter Upgrade Triage`](https://chaoyue0307.github.io/upgrade-copilot/case-studies/nextjs-starter-upgrade-triage.html)
+- [`React/Vite Starter Upgrade Triage`](https://chaoyue0307.github.io/upgrade-copilot/case-studies/react-vite-starter-upgrade-triage.html)
+- [`Django Template Upgrade Triage`](https://chaoyue0307.github.io/upgrade-copilot/case-studies/django-template-upgrade-triage.html)
 
-The case study shows how the plugin identifies major version gaps, risky migration areas, missing CI evidence, and a safe PR sequence.
+The case studies show how the plugin identifies major version gaps, risky migration areas, missing CI evidence, and safe PR sequences across frontend and backend stacks.
+
+## Risk Report Prototype
+
+Try the first premium prototype: [paste a public GitHub repo URL and generate an upgrade risk report](https://chaoyue0307.github.io/upgrade-copilot/risk-report.html). It is browser-only for now and points toward future paid hosted scans, saved reports, GitHub automation, and team dashboards.
 
 ## How It Compares
 
@@ -109,6 +116,7 @@ upgrade-copilot/.codex-plugin/plugin.json
 upgrade-copilot/skills/
 docs/index.html                         # GitHub Pages landing page
 docs/prompts.html
+docs/risk-report.html
 docs/faq.md
 docs/privacy.md
 docs/terms.md

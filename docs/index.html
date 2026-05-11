@@ -567,6 +567,7 @@
         <nav class="nav" aria-label="Primary navigation">
           <a href="#install">Install</a>
           <a href="#case-study">Case Study</a>
+          <a href="risk-report.html">Prototype</a>
           <a href="#compare">Compare</a>
           <a href="#skills">Skills</a>
           <a href="#paid">Paid Roadmap</a>
@@ -592,6 +593,7 @@
             </div>
             <div class="cta-row">
               <a class="button primary" href="#install">Install in Codex</a>
+              <a class="button secondary" href="risk-report.html">Try risk report</a>
               <a class="button secondary" href="https://github.com/ChaoYue0307/upgrade-copilot/issues/new?template=waitlist.yml">Join premium waitlist</a>
             </div>
           </div>
@@ -665,10 +667,10 @@ Sparse paths:</code></pre>
         <section id="case-study">
           <div class="section-title">
             <span class="kicker">Proof</span>
-            <h2>Real repo demo: Next.js starter upgrade triage.</h2>
+            <h2>Real repo demos across frontend and backend stacks.</h2>
             <p>
-              I tested the product idea against a public starter repo with visible upgrade pressure:
-              Next.js 11, React 17, NextAuth 3, React Query 3, Tailwind 2, TypeScript 4.4, and ESLint 7.
+              I tested the product idea against public repositories with visible upgrade pressure:
+              Next.js, React/Vite, and Django template workflows.
             </p>
           </div>
           <div class="proof">
@@ -695,6 +697,67 @@ Sparse paths:</code></pre>
               <div class="risk">
                 <strong>Why it matters</strong>
                 <span>A dependency bot might open one noisy PR. Upgrade Copilot explains risk, sequencing, validation, and rollback.</span>
+              </div>
+            </div>
+          </div>
+          <div class="grid" style="margin-top: 16px">
+            <article class="card highlight">
+              <h3>Next.js starter</h3>
+              <p>Major framework, auth, query, Tailwind, TypeScript, and CI-readiness risk.</p>
+              <div class="cta-row">
+                <a class="button secondary" href="case-studies/nextjs-starter-upgrade-triage.html">Read case study</a>
+              </div>
+            </article>
+            <article class="card highlight">
+              <h3>React/Vite starter</h3>
+              <p>Modern frontend tooling risk across Vite, Vitest, TypeScript, ESLint, React, and routing.</p>
+              <div class="cta-row">
+                <a class="button secondary" href="case-studies/react-vite-starter-upgrade-triage.html">Read case study</a>
+              </div>
+            </article>
+            <article class="card highlight">
+              <h3>Django template</h3>
+              <p>Python framework migration risk across Django settings, static files, database config, and deployment.</p>
+              <div class="cta-row">
+                <a class="button secondary" href="case-studies/django-template-upgrade-triage.html">Read case study</a>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="prototype">
+          <div class="section-title">
+            <span class="kicker">Premium prototype</span>
+            <h2>Paste a GitHub repo and get an upgrade-risk report.</h2>
+            <p>
+              The first paid-product prototype is live as a browser-only scanner for public GitHub repositories.
+              It reads dependency files and returns risk signals, notable packages, and a suggested PR plan.
+            </p>
+          </div>
+          <div class="proof">
+            <div class="proof-panel">
+              <span class="kicker">Try it now</span>
+              <h3>Free scan, paid automation path.</h3>
+              <p>
+                The prototype proves demand with a simple report. Premium versions can add private repo access,
+                saved reports, GitHub issue creation, PR automation, and team dashboards.
+              </p>
+              <div class="cta-row">
+                <a class="button primary" href="risk-report.html">Open risk report prototype</a>
+              </div>
+            </div>
+            <div class="risk-list">
+              <div class="risk">
+                <strong>Works today</strong>
+                <span>Fetches public `package.json` and `Pipfile` data directly from GitHub in the browser.</span>
+              </div>
+              <div class="risk">
+                <strong>Lead magnet</strong>
+                <span>Gives developers an immediate reason to share a repo URL and evaluate upgrade pain.</span>
+              </div>
+              <div class="risk">
+                <strong>Premium direction</strong>
+                <span>Authenticated scans, saved reports, curated migration rules, and automated GitHub work items.</span>
               </div>
             </div>
           </div>
@@ -874,7 +937,8 @@ Sparse paths:</code></pre>
           </article>
         </div>
         <div class="cta-row" id="waitlist">
-          <a class="button primary" href="https://github.com/ChaoYue0307/upgrade-copilot/issues/new?template=waitlist.yml">Request premium access</a>
+          <a class="button primary" href="risk-report.html">Try the risk report</a>
+          <a class="button secondary" href="https://github.com/ChaoYue0307/upgrade-copilot/issues/new?template=waitlist.yml">Request premium access</a>
           <a class="button secondary" href="roadmap.md">Read the roadmap</a>
         </div>
       </div>
@@ -883,7 +947,7 @@ Sparse paths:</code></pre>
     <div class="page">
       <footer>
         Upgrade Copilot is a public custom marketplace source, not an official OpenAI marketplace listing.
-        <a href="faq.md">FAQ</a> · <a href="privacy.md">Privacy</a> · <a href="terms.md">Terms</a>
+        <a href="risk-report.html">Risk report</a> · <a href="faq.md">FAQ</a> · <a href="privacy.md">Privacy</a> · <a href="terms.md">Terms</a>
       </footer>
     </div>
   </body>
