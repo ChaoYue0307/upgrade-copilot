@@ -79,7 +79,7 @@ Try the first premium prototype: [paste a public GitHub repo URL and generate an
 
 ## Backend Prototype
 
-The repo now includes a first server-side scan API in [`backend/`](backend/). It accepts a GitHub repo URL, scans manifests, lockfiles, and CI config server-side, and can optionally call OpenAI for a premium Markdown analysis when `OPENAI_API_KEY` is configured. See [`docs/backend.md`](docs/backend.md).
+The repo now includes a first server-side scan API in [`backend/`](backend/). It accepts a GitHub repo URL, scans manifests, lockfiles, and CI config server-side, and can optionally call OpenAI for a premium Markdown analysis when `OPENAI_API_KEY` is configured. It also includes Docker and Render deployment config, plus optional frontend wiring through `docs/assets/config.js`. See [`docs/backend.md`](docs/backend.md).
 
 ## Demo Video
 
@@ -123,6 +123,7 @@ Want hosted repo scans, upgrade risk reports, GitHub PR automation, or a team da
 ```text
 .agents/plugins/marketplace.json        # Codex custom marketplace manifest
 backend/                                # Hosted scan API prototype
+render.yaml                             # Render deployment blueprint
 upgrade-copilot/.codex-plugin/plugin.json
 upgrade-copilot/skills/
 docs/index.html                         # GitHub Pages landing page

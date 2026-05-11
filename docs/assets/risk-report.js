@@ -112,9 +112,13 @@ const result = document.querySelector("#result");
 const shareUrlInput = document.querySelector("#shareUrl");
 const waitlistForm = document.querySelector("#waitlistForm");
 const waitlistStatus = document.querySelector("#waitlistStatus");
+const scanMode = document.querySelector("#scanMode");
 let currentReport = null;
 let currentMarkdown = "";
 const registryCache = new Map();
+const configuredBackendApiUrl = getBackendApiUrl();
+
+updateScanMode(configuredBackendApiUrl ? "hosted backend" : "browser");
 
 document.querySelectorAll("[data-demo]").forEach((demo) => {
   demo.addEventListener("click", () => {
@@ -188,7 +192,7 @@ form.addEventListener("submit", async (event) => {
   button.disabled = true;
   button.textContent = "Scanning...";
   try {
-    const report = await scanRepo(parsed.owner, parsed.repo);
+    const report = await runScan(parsed);
     updateRepoParam(parsed);
     renderReport(report);
   } catch (error) {
@@ -203,6 +207,54 @@ const initialRepo = new URLSearchParams(window.location.search).get("repo");
 if (initialRepo) {
   input.value = initialRepo;
   form.requestSubmit();
+}
+
+async function runScan(parsed) {
+  const backendApiUrl = getBackendApiUrl();
+  updateScanMode(backendApiUrl ? "hosted backend" : "browser");
+  if (!backendApiUrl) return scanRepo(parsed.owner, parsed.repo);
+
+  try {
+    const response = await fetch(`${backendApiUrl.replace(/\/$/, "")}/api/scan`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        repoUrl: `${parsed.owner}/${parsed.repo}`,
+        includeLlm: Boolean(window.UPGRADE_COPILOT_CONFIG?.enableLlm)
+      })
+    });
+    if (!response.ok) {
+      throw new Error(`Backend returned ${response.status}`);
+    }
+    const payload = await response.json();
+    if (!payload.ok) {
+      throw new Error(payload.error || "Backend scan failed");
+    }
+    return normalizeBackendReport(payload);
+  } catch (error) {
+    console.warn("Hosted backend scan failed; falling back to browser scanner.", error);
+    updateScanMode("browser fallback");
+    return scanRepo(parsed.owner, parsed.repo);
+  }
+}
+
+function getBackendApiUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const fromQuery = params.get("backend");
+  if (fromQuery === "browser") {
+    localStorage.removeItem("upgradeCopilotBackendApiUrl");
+    return "";
+  }
+  if (fromQuery) {
+    localStorage.setItem("upgradeCopilotBackendApiUrl", fromQuery);
+    return fromQuery;
+  }
+  return window.UPGRADE_COPILOT_CONFIG?.backendApiUrl || localStorage.getItem("upgradeCopilotBackendApiUrl") || "";
+}
+
+function updateScanMode(mode) {
+  if (!scanMode) return;
+  scanMode.innerHTML = `Scan mode: <strong>${escapeHtml(mode)}</strong>`;
 }
 
 function parseRepo(value) {
@@ -630,6 +682,57 @@ function buildUnsupportedReport(metadata, searched, lockfiles) {
   return { metadata, files: [], dependencies: [], notable: [], findings, majorCount: 0, outdatedCount: 0, readiness: "yellow", lockfiles, searched, lookupStats: { attempted: 0, succeeded: 0, failed: 0 }, unsupported: true };
 }
 
+function normalizeBackendReport(payload) {
+  const scan = payload.scan;
+  const metadata = {
+    full_name: scan.metadata.fullName,
+    html_url: scan.metadata.htmlUrl,
+    description: scan.metadata.description,
+    stargazers_count: scan.metadata.stars,
+    default_branch: scan.metadata.defaultBranch
+  };
+  const dependencies = (scan.dependencies || []).map((dep) => ({
+    name: dep.name,
+    ecosystem: dep.ecosystem,
+    file: dep.file,
+    section: dep.section,
+    version: dep.current || "",
+    latest: dep.latest || null,
+    registryUrl: dep.registryUrl || null,
+    family: dep.family,
+    majorGap: dep.majorGap || 0,
+    outdated: Boolean(dep.outdated),
+    pinned: Boolean(dep.pinned),
+    rule: dep.risk ? { risk: dep.risk, family: dep.family } : null
+  }));
+  const files = (scan.evidence.files || []).map((file) => ({
+    path: file.path,
+    ecosystem: file.ecosystem,
+    label: file.label
+  }));
+  return {
+    metadata,
+    files,
+    dependencies,
+    notable: dependencies,
+    findings: scan.findings || [],
+    majorCount: scan.summary.majorCandidates || 0,
+    outdatedCount: scan.summary.outdatedCandidates || 0,
+    readiness: scan.readiness,
+    lockfiles: scan.evidence.lockfiles || [],
+    searched: scan.evidence.searchedManifestNames || Array.from(MANIFEST_NAMES).sort(),
+    lookupStats: scan.evidence.registry || { attempted: 0, succeeded: 0, failed: 0 },
+    unsupported: Boolean(scan.unsupported),
+    backend: true,
+    reportId: payload.reportId,
+    reportUrl: payload.reportUrl,
+    saved: Boolean(payload.saved),
+    llm: payload.llm || null,
+    backendPrPlan: scan.prPlan || [],
+    validationCommands: scan.validationCommands || []
+  };
+}
+
 function renderUnsupportedReport(message, metadata) {
   const fallbackMetadata = metadata || { full_name: "Unsupported repository", html_url: "", description: message, stargazers_count: 0, default_branch: "unknown" };
   renderReport({ metadata: fallbackMetadata, files: [], dependencies: [], notable: [], findings: [{ title: "Scan unavailable", text: message, severity: "medium" }], majorCount: 0, outdatedCount: 0, readiness: "yellow", lockfiles: [], searched: Array.from(MANIFEST_NAMES).sort(), lookupStats: { attempted: 0, succeeded: 0, failed: 0 }, unsupported: true });
@@ -649,7 +752,8 @@ function renderReport(report) {
   status.className = `status ${report.readiness}`;
   status.textContent = report.unsupported ? "Readiness: needs support" : `Readiness: ${report.readiness}`;
   document.querySelector("#reportTitle").textContent = report.unsupported ? `${report.metadata.full_name} scan support report` : `${report.metadata.full_name} upgrade report`;
-  document.querySelector("#reportLead").textContent = `${report.metadata.description || "Public GitHub repository"} · ${report.metadata.stargazers_count || 0} stars · default branch ${report.metadata.default_branch || "unknown"}`;
+  const backendNote = report.backend ? ` · report ${report.reportId}` : "";
+  document.querySelector("#reportLead").textContent = `${report.metadata.description || "Public GitHub repository"} · ${report.metadata.stargazers_count || 0} stars · default branch ${report.metadata.default_branch || "unknown"}${backendNote}`;
   document.querySelector("#fileCount").textContent = report.files.length;
   document.querySelector("#dependencyCount").textContent = report.dependencies.length;
   document.querySelector("#riskCount").textContent = report.findings.length;
@@ -686,6 +790,7 @@ function renderPlan(report) {
 }
 
 function getPlanItems(report) {
+  if (report.backendPrPlan?.length) return report.backendPrPlan;
   if (report.unsupported) {
     return ["Confirm whether the repo uses a supported dependency manager.", "Request support for this stack or repo layout through the waitlist form.", "For paid scans, allow deeper traversal and custom manifest paths.", "Add source-code and CI inspection in the backend scanner."];
   }
@@ -728,12 +833,14 @@ function renderRegistryCoverage(report) {
   const container = document.querySelector("#registryCoverage");
   const stats = report.lookupStats || { attempted: 0, succeeded: 0, failed: 0 };
   const lockfileText = report.lockfiles?.length ? `${report.lockfiles.length} lockfile(s) found` : "No shallow lockfile found";
+  const scanModeText = report.backend ? `hosted backend${report.saved ? " · saved" : " · unsaved"}` : "browser";
   container.innerHTML = "";
   [
     ["Registry lookups", `${stats.succeeded}/${stats.attempted} succeeded`],
     ["Lookup failures", `${stats.failed}`],
     ["Lockfile evidence", lockfileText],
-    ["Scanner depth", "root + common workspace folders"]
+    ["Scanner depth", "root + common workspace folders"],
+    ["Report mode", scanModeText]
   ].forEach(([label, value]) => {
     const div = document.createElement("div");
     div.className = "upgrade";
@@ -753,6 +860,8 @@ function buildMarkdown(report) {
     `# Upgrade Risk Report: ${report.metadata.full_name}`,
     "",
     report.metadata.html_url ? `Repository: ${report.metadata.html_url}` : "",
+    report.reportId ? `Report ID: ${report.reportId}` : "",
+    report.backend ? "Scan mode: hosted backend" : "Scan mode: browser",
     `Readiness: ${report.unsupported ? "needs support" : report.readiness}`,
     `Default branch: ${report.metadata.default_branch || "unknown"}`,
     "",
@@ -778,6 +887,13 @@ function buildMarkdown(report) {
     report.notable.slice(0, 16).forEach((dep) => lines.push(`- \`${dep.name}\` (${dep.ecosystem}): ${dep.version || "unversioned"} -> ${dep.latest || "latest unavailable"}`));
   } else {
     lines.push("- No packages matched the scanner's registry or rule catalog.");
+  }
+  if (report.validationCommands?.length) {
+    lines.push("", "## Validation Commands", "");
+    report.validationCommands.forEach((command) => lines.push(`- \`${command}\``));
+  }
+  if (report.llm?.markdown) {
+    lines.push("", "## LLM Analysis", "", report.llm.markdown);
   }
   lines.push("", "Generated by Upgrade Copilot risk report prototype.");
   return `${lines.join("\n")}\n`;

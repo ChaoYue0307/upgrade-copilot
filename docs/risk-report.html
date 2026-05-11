@@ -102,6 +102,8 @@
       .upgrade { display: flex; justify-content: space-between; gap: 12px; border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: #fff; }
       .upgrade code { color: var(--ink); font-weight: 800; }
       .upgrade span { color: var(--muted); text-align: right; }
+      .scan-mode { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.82); padding: 7px 10px; color: var(--muted); font-size: 13px; font-weight: 800; }
+      .scan-mode strong { color: var(--blue); }
       .report-tools { border: 1px solid var(--line); border-radius: 22px; background: #fff; padding: 16px; margin-top: 18px; }
       .report-tools h3 { margin: 0 0 10px; font-size: 18px; }
       .tool-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
@@ -151,7 +153,8 @@
               <button class="secondary" type="button" data-demo="https://github.com/CodingGarden/react-ts-starter">React demo</button>
               <button class="secondary" type="button" data-demo="https://github.com/jpadilla/django-project-template">Django demo</button>
             </div>
-            <p class="note">No server yet: this version runs in your browser, scans root plus shallow monorepo folders, and supports JavaScript, Python, Ruby, Go, Rust, PHP, and Java manifests. Future premium versions can add authenticated scans, source-code analysis, PR creation, saved reports, and team dashboards.</p>
+            <div class="scan-mode" id="scanMode">Scan mode: <strong>browser</strong></div>
+            <p class="note">Runs in browser by default. When a hosted backend URL is configured, scans run server-side for better rate limits, private repo readiness, optional LLM analysis, and future saved reports.</p>
           </form>
         </section>
 
@@ -631,6 +634,7 @@
         return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
       }
     </script>
+    <script src="assets/config.js"></script>
     <script src="assets/risk-report.js"></script>
   </body>
 </html>

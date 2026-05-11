@@ -1,4 +1,5 @@
 import http from "node:http";
+import { createHash } from "node:crypto";
 import { scanRepository } from "./scanner.js";
 import { generateLlmAnalysis } from "./llm.js";
 
@@ -24,7 +25,15 @@ const server = http.createServer(async (req, res) => {
       const body = await readJsonBody(req);
       const scan = await scanRepository({ repoUrl: body.repoUrl });
       const llm = body.includeLlm ? await generateLlmAnalysis(scan) : { enabled: false, markdown: null };
-      sendJson(res, 200, { ok: true, scan, llm });
+      const reportId = createReportId(scan);
+      sendJson(res, 200, {
+        ok: true,
+        reportId,
+        reportUrl: null,
+        saved: false,
+        scan,
+        llm
+      });
       return;
     }
 
@@ -59,4 +68,16 @@ async function readJsonBody(req) {
 function sendJson(res, status, payload) {
   res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
   res.end(JSON.stringify(payload, null, 2));
+}
+
+function createReportId(scan) {
+  const seed = [
+    scan.metadata?.fullName,
+    scan.metadata?.defaultBranch,
+    scan.readiness,
+    scan.summary?.dependencies,
+    scan.summary?.findings,
+    new Date().toISOString().slice(0, 10)
+  ].join(":");
+  return `ucr_${createHash("sha256").update(seed).digest("hex").slice(0, 16)}`;
 }

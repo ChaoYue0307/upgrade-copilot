@@ -23,6 +23,17 @@ Content-Type: application/json
 }
 ```
 
+The backend response also includes a `reportId` placeholder. Reports are not persisted yet, but the response shape is ready for saved reports:
+
+```json
+{
+  "ok": true,
+  "reportId": "ucr_...",
+  "reportUrl": null,
+  "saved": false
+}
+```
+
 The response contains deterministic scanner output and, when requested/configured, an `llm` report:
 
 ```json
@@ -53,6 +64,28 @@ cp .env.example .env
 npm run check
 npm run smoke
 npm start
+```
+
+## Deployment
+
+The repo includes:
+
+- [`render.yaml`](https://github.com/ChaoYue0307/upgrade-copilot/blob/main/render.yaml)
+- [`backend/Dockerfile`](https://github.com/ChaoYue0307/upgrade-copilot/blob/main/backend/Dockerfile)
+
+After deploying the backend, update [`docs/assets/config.js`](https://github.com/ChaoYue0307/upgrade-copilot/blob/main/docs/assets/config.js):
+
+```js
+window.UPGRADE_COPILOT_CONFIG = {
+  backendApiUrl: "https://your-backend.example.com",
+  enableLlm: false
+};
+```
+
+For temporary testing, pass the backend URL in the page URL:
+
+```text
+https://chaoyue0307.github.io/upgrade-copilot/risk-report.html?backend=https://your-backend.example.com
 ```
 
 ## Why This Matters Commercially
