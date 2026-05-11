@@ -6,6 +6,7 @@
 [Premium waitlist](https://github.com/ChaoYue0307/upgrade-copilot/issues/new?template=waitlist.yml) ·
 [Risk report prototype](https://chaoyue0307.github.io/upgrade-copilot/risk-report.html) ·
 [Demo video](https://chaoyue0307.github.io/upgrade-copilot/assets/upgrade-copilot-demo.mp4) ·
+[Backend prototype](docs/backend.md) ·
 [Roadmap](docs/roadmap.md) ·
 [Case studies](https://chaoyue0307.github.io/upgrade-copilot/#case-study) ·
 [Prompt library](https://chaoyue0307.github.io/upgrade-copilot/prompts.html)
@@ -76,6 +77,10 @@ The case studies show how the plugin identifies major version gaps, risky migrat
 
 Try the first premium prototype: [paste a public GitHub repo URL and generate an upgrade risk report](https://chaoyue0307.github.io/upgrade-copilot/risk-report.html). It is browser-only for now, scans root and shallow monorepo folders, supports npm/Python/Ruby/Go/Rust/PHP/JVM manifests, checks public registries where possible, exports Markdown, and includes a waitlist form for future paid hosted scans, source-code analysis, saved reports, GitHub automation, and team dashboards.
 
+## Backend Prototype
+
+The repo now includes a first server-side scan API in [`backend/`](backend/). It accepts a GitHub repo URL, scans manifests, lockfiles, and CI config server-side, and can optionally call OpenAI for a premium Markdown analysis when `OPENAI_API_KEY` is configured. See [`docs/backend.md`](docs/backend.md).
+
 ## Demo Video
 
 Watch the real browser-recorded demo: [Upgrade Copilot risk report demo](https://chaoyue0307.github.io/upgrade-copilot/assets/upgrade-copilot-demo.mp4). It shows the live prototype scanning a public repo, rendering upgrade risk, exporting the report, and capturing premium interest.
@@ -117,6 +122,7 @@ Want hosted repo scans, upgrade risk reports, GitHub PR automation, or a team da
 
 ```text
 .agents/plugins/marketplace.json        # Codex custom marketplace manifest
+backend/                                # Hosted scan API prototype
 upgrade-copilot/.codex-plugin/plugin.json
 upgrade-copilot/skills/
 docs/index.html                         # GitHub Pages landing page
