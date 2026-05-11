@@ -58,6 +58,14 @@ The free plugin is the distribution layer. The paid product can become a hosted 
 
 See `upgrade-copilot/docs/monetization.md` and `upgrade-copilot/.mcp.example.json` for the placeholder paid-service shape.
 
+## Demo Case Study
+
+I browsed a real public repo, [`pbteja1998/nextjs-starter`](https://github.com/pbteja1998/nextjs-starter), and wrote an Upgrade Copilot-style assessment:
+
+[`Next.js Starter Upgrade Triage`](docs/case-studies/nextjs-starter-upgrade-triage.md)
+
+The case study shows how the plugin should identify major version gaps, risky migration areas, missing CI evidence, and a safe PR sequence.
+
 ## Join The Premium Waitlist
 
 Want hosted repo scans, upgrade risk reports, GitHub PR automation, or a team dashboard? [Open a waitlist request](https://github.com/ChaoYue0307/upgrade-copilot/issues/new?template=waitlist.yml).

@@ -351,6 +351,33 @@ Then choose "Add to Codex".</code></pre>
           <img class="screenshot" src="assets/plugin-page.png" alt="Upgrade Copilot plugin page in Codex" />
         </section>
 
+        <section id="case-study">
+          <div class="section-title">
+            <h2>Real repo demo: Next.js starter upgrade triage.</h2>
+            <p>
+              I tested the product idea against a public starter repo with visible upgrade pressure:
+              Next.js 11, React 17, NextAuth 3, React Query 3, Tailwind 2, TypeScript 4.4, and ESLint 7.
+            </p>
+          </div>
+          <div class="grid">
+            <article class="card">
+              <h3>What it found</h3>
+              <p>Large version gaps, auth migration risk, Tailwind config changes, React Query rename risk, and unclear CI readiness.</p>
+            </article>
+            <article class="card">
+              <h3>What it recommended</h3>
+              <p>Start with validation, then split tooling, auth, data/query, Tailwind, and framework migration work into separate PRs.</p>
+            </article>
+            <article class="card">
+              <h3>Why it matters</h3>
+              <p>A dependency bot might open one noisy PR. Upgrade Copilot explains risk, sequencing, validation, and rollback.</p>
+            </article>
+          </div>
+          <div class="cta-row">
+            <a class="button secondary" href="case-studies/nextjs-starter-upgrade-triage.md">Read the case study</a>
+          </div>
+        </section>
+
         <section id="skills">
           <div class="section-title">
             <h2>Built around real developer pain.</h2>
