@@ -52,7 +52,7 @@
       }
       .panel { padding: 22px; }
       label { display: block; margin-bottom: 8px; font-weight: 800; }
-      input {
+      input, select, textarea {
         width: 100%;
         border: 1px solid var(--line);
         border-radius: 16px;
@@ -61,6 +61,8 @@
         color: var(--ink);
         background: #fff;
       }
+      textarea { min-height: 110px; resize: vertical; }
+      input[readonly] { background: #f8fafc; color: var(--muted); }
       .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
       button, .button {
         border: 0;
@@ -100,6 +102,14 @@
       .upgrade { display: flex; justify-content: space-between; gap: 12px; border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: #fff; }
       .upgrade code { color: var(--ink); font-weight: 800; }
       .upgrade span { color: var(--muted); text-align: right; }
+      .report-tools { border: 1px solid var(--line); border-radius: 22px; background: #fff; padding: 16px; margin-top: 18px; }
+      .report-tools h3 { margin: 0 0 10px; font-size: 18px; }
+      .tool-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
+      .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+      .field { display: grid; gap: 7px; }
+      .field label { margin: 0; font-size: 13px; }
+      .field.full { grid-column: 1 / -1; }
+      .form-status { color: var(--muted); font-size: 14px; margin-top: 10px; }
       .cta { margin: 28px 0 54px; padding: 24px; border-radius: 28px; background: linear-gradient(135deg, #0f172a, #1d4ed8); color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
       .cta p { color: rgba(255,255,255,.78); margin: 6px 0 0; }
       .cta .button { background: #fff; color: #1d4ed8; box-shadow: none; white-space: nowrap; }
@@ -107,6 +117,7 @@
       @media (max-width: 900px) {
         .hero, .grid { grid-template-columns: 1fr; }
         .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .tool-row, .form-grid { grid-template-columns: 1fr; }
         .cta { align-items: flex-start; flex-direction: column; }
       }
       @media (max-width: 600px) {
@@ -154,6 +165,18 @@
             <div class="metric"><strong id="riskCount">0</strong><span>risk signals</span></div>
             <div class="metric"><strong id="majorCount">0</strong><span>major-version candidates</span></div>
           </div>
+          <div class="report-tools">
+            <h3>Share or export this report</h3>
+            <div class="tool-row">
+              <input id="shareUrl" readonly aria-label="Shareable report URL" />
+              <div class="actions" style="margin-top:0">
+                <button class="secondary" id="copyShareUrl" type="button">Copy URL</button>
+                <button class="secondary" id="copyMarkdown" type="button">Copy Markdown</button>
+                <button id="downloadMarkdown" type="button">Download Markdown</button>
+              </div>
+            </div>
+            <p class="note">Share links re-run the browser scan from the public GitHub repo URL. Markdown exports are useful for issues, PR descriptions, and team docs.</p>
+          </div>
           <div class="grid">
             <div class="card">
               <h3>Findings</h3>
@@ -170,9 +193,46 @@
               <div class="upgrade-list" id="upgrades"></div>
             </div>
             <div class="card">
-              <h3>Premium next step</h3>
+              <h3>Join the premium waitlist</h3>
               <p>This browser prototype is the lead magnet. The paid version can run authenticated scans, compare lockfiles, open GitHub issues, and generate PR-sized migration plans.</p>
-              <a class="button secondary" href="https://github.com/ChaoYue0307/upgrade-copilot/issues/new?template=waitlist.yml">Join the premium waitlist</a>
+              <form id="waitlistForm">
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="contactName">Name</label>
+                    <input id="contactName" name="contactName" placeholder="Your name" />
+                  </div>
+                  <div class="field">
+                    <label for="contactEmail">Contact</label>
+                    <input id="contactEmail" name="contactEmail" placeholder="Email or GitHub handle" />
+                  </div>
+                  <div class="field">
+                    <label for="buyerType">Who are you?</label>
+                    <select id="buyerType" name="buyerType">
+                      <option>Solo developer</option>
+                      <option>Startup team</option>
+                      <option>Engineering team</option>
+                      <option>Platform group</option>
+                      <option>Consultant / agency</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="interest">Most useful premium feature</label>
+                    <select id="interest" name="interest">
+                      <option>Private repo scans</option>
+                      <option>Saved upgrade reports</option>
+                      <option>GitHub issue creation</option>
+                      <option>Automated PR batches</option>
+                      <option>Team dashboard</option>
+                    </select>
+                  </div>
+                  <div class="field full">
+                    <label for="context">Upgrade problem</label>
+                    <textarea id="context" name="context" placeholder="What stack do you need to upgrade, and what keeps breaking?"></textarea>
+                  </div>
+                </div>
+                <button type="submit">Create waitlist request</button>
+                <p class="form-status" id="waitlistStatus">Opens a prefilled GitHub issue so the request is easy to track.</p>
+              </form>
             </div>
           </div>
         </section>
@@ -214,12 +274,72 @@
       const input = document.querySelector("#repoUrl");
       const button = document.querySelector("#submitButton");
       const result = document.querySelector("#result");
+      const shareUrlInput = document.querySelector("#shareUrl");
+      const waitlistForm = document.querySelector("#waitlistForm");
+      const waitlistStatus = document.querySelector("#waitlistStatus");
+      let currentReport = null;
+      let currentMarkdown = "";
 
       document.querySelectorAll("[data-demo]").forEach((demo) => {
         demo.addEventListener("click", () => {
           input.value = demo.dataset.demo;
           form.requestSubmit();
         });
+      });
+
+      document.querySelector("#copyShareUrl").addEventListener("click", async () => {
+        await copyText(shareUrlInput.value);
+        shareUrlInput.focus();
+        shareUrlInput.select();
+      });
+
+      document.querySelector("#copyMarkdown").addEventListener("click", async () => {
+        if (currentMarkdown) await copyText(currentMarkdown);
+      });
+
+      document.querySelector("#downloadMarkdown").addEventListener("click", () => {
+        if (!currentReport || !currentMarkdown) return;
+        const slug = currentReport.metadata.full_name.replace(/[^\w.-]+/g, "-").toLowerCase();
+        const blob = new Blob([currentMarkdown], { type: "text/markdown;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${slug}-upgrade-risk-report.md`;
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+
+      waitlistForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const parsedRepo = parseRepo(input.value);
+        const repo = currentReport?.metadata.full_name || (parsedRepo ? `${parsedRepo.owner}/${parsedRepo.repo}` : "unknown repo");
+        const body = [
+          "## Contact",
+          document.querySelector("#contactName").value || "(not provided)",
+          "",
+          "## Email or GitHub handle",
+          document.querySelector("#contactEmail").value || "(not provided)",
+          "",
+          "## Buyer type",
+          document.querySelector("#buyerType").value,
+          "",
+          "## Most useful premium feature",
+          document.querySelector("#interest").value,
+          "",
+          "## Repository scanned",
+          repo,
+          "",
+          "## Shareable report URL",
+          shareUrlInput.value || window.location.href,
+          "",
+          "## Upgrade problem",
+          document.querySelector("#context").value || "(not provided)"
+        ].join("\n");
+        const issueUrl = new URL("https://github.com/ChaoYue0307/upgrade-copilot/issues/new");
+        issueUrl.searchParams.set("title", `Premium waitlist: ${repo}`);
+        issueUrl.searchParams.set("body", body);
+        window.open(issueUrl.toString(), "_blank", "noopener");
+        waitlistStatus.textContent = "Opened a prefilled GitHub issue in a new tab.";
       });
 
       form.addEventListener("submit", async (event) => {
@@ -233,6 +353,7 @@
         button.textContent = "Scanning...";
         try {
           const report = await scanRepo(parsed.owner, parsed.repo);
+          updateRepoParam(parsed);
           renderReport(report);
         } catch (error) {
           showError(error.message || "Could not scan this repository.");
@@ -241,6 +362,12 @@
           button.textContent = "Generate report";
         }
       });
+
+      const initialRepo = new URLSearchParams(window.location.search).get("repo");
+      if (initialRepo) {
+        input.value = initialRepo;
+        form.requestSubmit();
+      }
 
       function parseRepo(value) {
         try {
@@ -277,6 +404,12 @@
         const majorCount = notable.filter((dep) => dep.majorGap > 0).length;
         const readiness = findings.length >= 6 || majorCount >= 5 ? "red" : findings.length >= 3 || majorCount >= 2 ? "yellow" : "green";
         return { metadata, files, dependencies, notable, findings, majorCount, readiness };
+      }
+
+      function updateRepoParam(parsed) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("repo", `${parsed.owner}/${parsed.repo}`);
+        window.history.replaceState({}, "", url);
       }
 
       async function fetchJson(url) {
@@ -349,6 +482,8 @@
       }
 
       function renderReport(report) {
+        currentReport = report;
+        currentMarkdown = buildMarkdown(report);
         result.hidden = false;
         const status = document.querySelector("#statusBadge");
         status.className = `status ${report.readiness}`;
@@ -362,6 +497,8 @@
         renderFindings(report.findings);
         renderPlan(report);
         renderUpgrades(report.notable);
+        shareUrlInput.value = window.location.href;
+        waitlistStatus.textContent = "Opens a prefilled GitHub issue so the request is easy to track.";
         result.scrollIntoView({ behavior: "smooth", block: "start" });
       }
 
@@ -378,15 +515,19 @@
 
       function renderPlan(report) {
         const plan = document.querySelector("#plan");
-        const items = report.files.some((file) => file.path === "Pipfile")
-          ? ["Generate a project from the template and establish smoke tests.", "Move Django through the current LTS target before newer majors.", "Upgrade Django ecosystem packages in a separate PR.", "Upgrade deployment packages and validate production settings.", "Create saved reports and GitHub issues in the premium workflow."]
-          : ["Run baseline typecheck, lint, tests, and build.", "Upgrade build/test tooling first.", "Handle lint and TypeScript config movement separately.", "Upgrade runtime framework and router packages after tooling is green.", "Create saved reports and GitHub issues in the premium workflow."];
+        const items = getPlanItems(report);
         plan.innerHTML = "";
         for (const item of items) {
           const li = document.createElement("li");
           li.textContent = item;
           plan.appendChild(li);
         }
+      }
+
+      function getPlanItems(report) {
+        return report.files.some((file) => file.path === "Pipfile")
+          ? ["Generate a project from the template and establish smoke tests.", "Move Django through the current LTS target before newer majors.", "Upgrade Django ecosystem packages in a separate PR.", "Upgrade deployment packages and validate production settings.", "Create saved reports and GitHub issues in the premium workflow."]
+          : ["Run baseline typecheck, lint, tests, and build.", "Upgrade build/test tooling first.", "Handle lint and TypeScript config movement separately.", "Upgrade runtime framework and router packages after tooling is green.", "Create saved reports and GitHub issues in the premium workflow."];
       }
 
       function renderUpgrades(notable) {
@@ -401,6 +542,8 @@
       }
 
       function showError(message) {
+        currentReport = null;
+        currentMarkdown = "";
         result.hidden = false;
         document.querySelector("#statusBadge").className = "status red";
         document.querySelector("#statusBadge").textContent = "Scan failed";
@@ -413,7 +556,65 @@
         document.querySelector("#findings").innerHTML = "";
         document.querySelector("#plan").innerHTML = "";
         document.querySelector("#upgrades").innerHTML = "";
+        shareUrlInput.value = window.location.href;
         result.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function buildMarkdown(report) {
+        const lines = [
+          `# Upgrade Risk Report: ${report.metadata.full_name}`,
+          "",
+          `Repository: ${report.metadata.html_url}`,
+          `Readiness: ${report.readiness}`,
+          `Default branch: ${report.metadata.default_branch}`,
+          "",
+          "## Summary",
+          "",
+          `- Dependency files found: ${report.files.length}`,
+          `- Dependencies scanned: ${report.dependencies.length}`,
+          `- Risk signals: ${report.findings.length}`,
+          `- Major-version candidates: ${report.majorCount}`,
+          "",
+          "## Findings",
+          ""
+        ];
+        if (report.findings.length) {
+          for (const finding of report.findings) {
+            lines.push(`- **${finding.title}** (${finding.severity}): ${finding.text}`);
+          }
+        } else {
+          lines.push("- No known high-signal upgrade risks found in this prototype scan.");
+        }
+        lines.push("", "## Suggested PR Plan", "");
+        getPlanItems(report).forEach((item, index) => lines.push(`${index + 1}. ${item}`));
+        lines.push("", "## Notable Packages", "");
+        if (report.notable.length) {
+          for (const dep of report.notable.slice(0, 12)) {
+            lines.push(`- \`${dep.name}\`: ${dep.version} -> ${dep.known.latest}`);
+          }
+        } else {
+          lines.push("- No packages matched the prototype's known upgrade catalog.");
+        }
+        lines.push("", "Generated by Upgrade Copilot risk report prototype.");
+        return `${lines.join("\n")}\n`;
+      }
+
+      async function copyText(value) {
+        if (!value) return;
+        if (navigator.clipboard?.writeText) {
+          try {
+            await navigator.clipboard.writeText(value);
+            return;
+          } catch {
+            // Fall through to the textarea copy path for older or restricted browsers.
+          }
+        }
+        const textarea = document.createElement("textarea");
+        textarea.value = value;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
       }
 
       function escapeHtml(value) {

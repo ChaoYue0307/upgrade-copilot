@@ -73,7 +73,7 @@ The case studies show how the plugin identifies major version gaps, risky migrat
 
 ## Risk Report Prototype
 
-Try the first premium prototype: [paste a public GitHub repo URL and generate an upgrade risk report](https://chaoyue0307.github.io/upgrade-copilot/risk-report.html). It is browser-only for now and points toward future paid hosted scans, saved reports, GitHub automation, and team dashboards.
+Try the first premium prototype: [paste a public GitHub repo URL and generate an upgrade risk report](https://chaoyue0307.github.io/upgrade-copilot/risk-report.html). It is browser-only for now, supports shareable report URLs and Markdown downloads, and includes a waitlist form for future paid hosted scans, saved reports, GitHub automation, and team dashboards.
 
 ## How It Compares
 
