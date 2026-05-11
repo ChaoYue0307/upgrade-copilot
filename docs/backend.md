@@ -1,6 +1,6 @@
 # Backend Prototype
 
-Upgrade Copilot now includes a first backend scan API under [`backend/`](../backend/).
+Upgrade Copilot now includes a first backend scan API under [`backend/`](https://github.com/ChaoYue0307/upgrade-copilot/tree/main/backend).
 
 The static risk report page remains the public lead magnet. The backend prototype is the path toward a paid product:
 
