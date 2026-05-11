@@ -73,12 +73,17 @@ The repo includes:
 - [`render.yaml`](https://github.com/ChaoYue0307/upgrade-copilot/blob/main/render.yaml)
 - [`backend/Dockerfile`](https://github.com/ChaoYue0307/upgrade-copilot/blob/main/backend/Dockerfile)
 
+[Deploy to Render](https://render.com/deploy?repo=https://github.com/ChaoYue0307/upgrade-copilot)
+
+Full guide: [`deploy-render.md`](deploy-render.md).
+
 After deploying the backend, update [`docs/assets/config.js`](https://github.com/ChaoYue0307/upgrade-copilot/blob/main/docs/assets/config.js):
 
 ```js
 window.UPGRADE_COPILOT_CONFIG = {
   backendApiUrl: "https://your-backend.example.com",
-  enableLlm: false
+  enableLlm: false,
+  backendTimeoutMs: 7000
 };
 ```
 

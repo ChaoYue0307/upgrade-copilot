@@ -57,6 +57,8 @@ To enable LLM analysis, set `OPENAI_API_KEY` and pass:
 
 This repo includes a root-level `render.yaml` and a backend `Dockerfile`.
 
+[Deploy to Render](https://render.com/deploy?repo=https://github.com/ChaoYue0307/upgrade-copilot)
+
 1. Create a new Render Blueprint from the GitHub repo.
 2. Set `GITHUB_TOKEN` for higher GitHub API limits and private repo access when authorized.
 3. Set `OPENAI_API_KEY` if you want `includeLlm: true` to produce premium Markdown analysis.
@@ -66,7 +68,8 @@ This repo includes a root-level `render.yaml` and a backend `Dockerfile`.
 ```js
 window.UPGRADE_COPILOT_CONFIG = {
   backendApiUrl: "https://upgrade-copilot-backend.onrender.com",
-  enableLlm: false
+  enableLlm: false,
+  backendTimeoutMs: 7000
 };
 ```
 
@@ -75,6 +78,8 @@ You can also test a backend without editing the file by opening:
 ```text
 https://chaoyue0307.github.io/upgrade-copilot/risk-report.html?backend=https://your-backend.example.com
 ```
+
+See the public deployment guide at [`docs/deploy-render.md`](../docs/deploy-render.md).
 
 ## Environment Variables
 

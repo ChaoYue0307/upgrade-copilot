@@ -117,6 +117,7 @@ let currentReport = null;
 let currentMarkdown = "";
 const registryCache = new Map();
 const configuredBackendApiUrl = getBackendApiUrl();
+const backendTimeoutMs = Number(window.UPGRADE_COPILOT_CONFIG?.backendTimeoutMs || 7000);
 
 updateScanMode(configuredBackendApiUrl ? "hosted backend" : "browser");
 
@@ -214,10 +215,14 @@ async function runScan(parsed) {
   updateScanMode(backendApiUrl ? "hosted backend" : "browser");
   if (!backendApiUrl) return scanRepo(parsed.owner, parsed.repo);
 
+  let timeout = null;
   try {
+    const controller = new AbortController();
+    timeout = window.setTimeout(() => controller.abort(), backendTimeoutMs);
     const response = await fetch(`${backendApiUrl.replace(/\/$/, "")}/api/scan`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
       body: JSON.stringify({
         repoUrl: `${parsed.owner}/${parsed.repo}`,
         includeLlm: Boolean(window.UPGRADE_COPILOT_CONFIG?.enableLlm)
@@ -235,6 +240,8 @@ async function runScan(parsed) {
     console.warn("Hosted backend scan failed; falling back to browser scanner.", error);
     updateScanMode("browser fallback");
     return scanRepo(parsed.owner, parsed.repo);
+  } finally {
+    if (timeout) window.clearTimeout(timeout);
   }
 }
 

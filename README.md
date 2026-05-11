@@ -75,11 +75,13 @@ The case studies show how the plugin identifies major version gaps, risky migrat
 
 ## Risk Report Prototype
 
-Try the first premium prototype: [paste a public GitHub repo URL and generate an upgrade risk report](https://chaoyue0307.github.io/upgrade-copilot/risk-report.html). It is browser-only for now, scans root and shallow monorepo folders, supports npm/Python/Ruby/Go/Rust/PHP/JVM manifests, checks public registries where possible, exports Markdown, and includes a waitlist form for future paid hosted scans, source-code analysis, saved reports, GitHub automation, and team dashboards.
+Try the first premium prototype: [paste a public GitHub repo URL and generate an upgrade risk report](https://chaoyue0307.github.io/upgrade-copilot/risk-report.html). It runs in browser mode by default, can connect to the hosted backend when configured, scans root and shallow monorepo folders, supports npm/Python/Ruby/Go/Rust/PHP/JVM manifests, checks public registries where possible, exports Markdown, and includes a waitlist form for future paid hosted scans, source-code analysis, saved reports, GitHub automation, and team dashboards.
 
 ## Backend Prototype
 
-The repo now includes a first server-side scan API in [`backend/`](backend/). It accepts a GitHub repo URL, scans manifests, lockfiles, and CI config server-side, and can optionally call OpenAI for a premium Markdown analysis when `OPENAI_API_KEY` is configured. It also includes Docker and Render deployment config, plus optional frontend wiring through `docs/assets/config.js`. See [`docs/backend.md`](docs/backend.md).
+The repo now includes a first server-side scan API in [`backend/`](backend/). It accepts a GitHub repo URL, scans manifests, lockfiles, and CI config server-side, and can optionally call OpenAI for a premium Markdown analysis when `OPENAI_API_KEY` is configured. It also includes Docker and Render deployment config, plus optional frontend wiring through `docs/assets/config.js`. See [`docs/backend.md`](docs/backend.md) and the [`Render deployment guide`](docs/deploy-render.md).
+
+[Deploy the backend to Render](https://render.com/deploy?repo=https://github.com/ChaoYue0307/upgrade-copilot)
 
 ## Demo Video
 
@@ -127,6 +129,7 @@ render.yaml                             # Render deployment blueprint
 upgrade-copilot/.codex-plugin/plugin.json
 upgrade-copilot/skills/
 docs/index.html                         # GitHub Pages landing page
+docs/deploy-render.md                   # Hosted backend deployment guide
 docs/prompts.html
 docs/risk-report.html
 docs/faq.md
