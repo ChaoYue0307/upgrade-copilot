@@ -1,6 +1,6 @@
 {
   "name": "upgrade-copilot",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "A Codex plugin that makes risky dependency and framework upgrades easier to assess, split, validate, and ship.",
   "author": {
     "name": "Chaoyue",

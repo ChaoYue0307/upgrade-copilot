@@ -141,7 +141,7 @@
           <div>
             <span class="kicker">Premium prototype</span>
             <h1>Instant upgrade risk report.</h1>
-            <p class="lead">Paste a public GitHub repo URL. This prototype fetches dependency files directly from GitHub and turns them into a lightweight upgrade risk report.</p>
+            <p class="lead">Paste a public GitHub repo URL. This prototype discovers common dependency files, checks public package registries where possible, and turns the evidence into an upgrade risk report.</p>
           </div>
           <form class="panel" id="reportForm">
             <label for="repoUrl">Public GitHub repository URL</label>
@@ -151,7 +151,7 @@
               <button class="secondary" type="button" data-demo="https://github.com/CodingGarden/react-ts-starter">React demo</button>
               <button class="secondary" type="button" data-demo="https://github.com/jpadilla/django-project-template">Django demo</button>
             </div>
-            <p class="note">No server yet: this first version runs in your browser and uses public GitHub raw files. Future premium versions can add authenticated scans, PR creation, saved reports, and team dashboards.</p>
+            <p class="note">No server yet: this version runs in your browser, scans root plus shallow monorepo folders, and supports JavaScript, Python, Ruby, Go, Rust, PHP, and Java manifests. Future premium versions can add authenticated scans, source-code analysis, PR creation, saved reports, and team dashboards.</p>
           </form>
         </section>
 
@@ -191,6 +191,16 @@
             <div class="card">
               <h3>Notable packages</h3>
               <div class="upgrade-list" id="upgrades"></div>
+            </div>
+            <div class="card">
+              <h3>Files scanned</h3>
+              <div class="upgrade-list" id="filesScanned"></div>
+            </div>
+          </div>
+          <div class="grid">
+            <div class="card">
+              <h3>Registry coverage</h3>
+              <div class="upgrade-list" id="registryCoverage"></div>
             </div>
             <div class="card">
               <h3>Join the premium waitlist</h3>
@@ -249,7 +259,7 @@
       <footer>Prototype only. Results are heuristic and should be validated with the repository's tests and maintainers' release notes.</footer>
     </div>
 
-    <script>
+    <script type="text/plain" id="legacy-risk-report-script">
       const KNOWN = {
         react: { latest: "19.2.6", family: "React", risk: "React major upgrade should be separated from tooling updates." },
         "react-dom": { latest: "19.2.6", family: "React", risk: "React DOM should move with React and UI test validation." },
@@ -621,5 +631,6 @@
         return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
       }
     </script>
+    <script src="assets/risk-report.js"></script>
   </body>
 </html>

@@ -74,7 +74,7 @@ The case studies show how the plugin identifies major version gaps, risky migrat
 
 ## Risk Report Prototype
 
-Try the first premium prototype: [paste a public GitHub repo URL and generate an upgrade risk report](https://chaoyue0307.github.io/upgrade-copilot/risk-report.html). It is browser-only for now, supports shareable report URLs and Markdown downloads, and includes a waitlist form for future paid hosted scans, saved reports, GitHub automation, and team dashboards.
+Try the first premium prototype: [paste a public GitHub repo URL and generate an upgrade risk report](https://chaoyue0307.github.io/upgrade-copilot/risk-report.html). It is browser-only for now, scans root and shallow monorepo folders, supports npm/Python/Ruby/Go/Rust/PHP/JVM manifests, checks public registries where possible, exports Markdown, and includes a waitlist form for future paid hosted scans, source-code analysis, saved reports, GitHub automation, and team dashboards.
 
 ## Demo Video
 
