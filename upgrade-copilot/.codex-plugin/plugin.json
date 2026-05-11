@@ -1,13 +1,13 @@
 {
   "name": "upgrade-copilot",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A Codex plugin that turns risky dependency and framework upgrades into assessed, testable, reviewable PRs.",
   "author": {
     "name": "Chaoyue",
-    "url": "https://github.com/chaoyue-codex-plugins"
+    "url": "https://github.com/ChaoYue0307"
   },
-  "homepage": "https://github.com/chaoyue-codex-plugins/upgrade-copilot",
-  "repository": "https://github.com/chaoyue-codex-plugins/upgrade-copilot",
+  "homepage": "https://chaoyue0307.github.io/upgrade-copilot/",
+  "repository": "https://github.com/ChaoYue0307/upgrade-copilot",
   "license": "Commercial",
   "keywords": [
     "migration",
@@ -32,9 +32,9 @@
       "Read",
       "Write"
     ],
-    "websiteURL": "https://github.com/chaoyue-codex-plugins/upgrade-copilot",
-    "privacyPolicyURL": "https://github.com/chaoyue-codex-plugins/upgrade-copilot",
-    "termsOfServiceURL": "https://github.com/chaoyue-codex-plugins/upgrade-copilot",
+    "websiteURL": "https://chaoyue0307.github.io/upgrade-copilot/",
+    "privacyPolicyURL": "https://github.com/ChaoYue0307/upgrade-copilot",
+    "termsOfServiceURL": "https://github.com/ChaoYue0307/upgrade-copilot",
     "brandColor": "#2563EB",
     "composerIcon": "./assets/icon.png",
     "logo": "./assets/icon.png",

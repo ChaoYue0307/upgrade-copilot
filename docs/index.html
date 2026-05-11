@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Upgrade Copilot</title>
+    <meta
+      name="description"
+      content="A Codex plugin that turns risky dependency and framework upgrades into assessed, testable, reviewable PRs."
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f8fbff;
+        --card: #ffffff;
+        --ink: #0f172a;
+        --muted: #526071;
+        --line: #dce6f2;
+        --blue: #2563eb;
+        --indigo: #312e81;
+        --soft: #eaf1ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 32rem),
+          linear-gradient(180deg, #ffffff 0%, var(--bg) 52%, #eef5ff 100%);
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+
+      a {
+        color: var(--blue);
+        text-decoration: none;
+      }
+
+      .page {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 28px 0;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 750;
+      }
+
+      .brand img {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+      }
+
+      .nav {
+        display: flex;
+        gap: 16px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 44px;
+        align-items: center;
+        padding: 72px 0 56px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.72);
+        padding: 8px 12px;
+        color: var(--blue);
+        font-size: 14px;
+        font-weight: 650;
+      }
+
+      h1 {
+        margin: 22px 0 18px;
+        max-width: 720px;
+        font-size: clamp(44px, 7vw, 76px);
+        line-height: 0.95;
+        letter-spacing: -0.055em;
+      }
+
+      .lead {
+        max-width: 620px;
+        color: var(--muted);
+        font-size: 20px;
+      }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-top: 30px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        border-radius: 12px;
+        padding: 0 18px;
+        font-weight: 700;
+      }
+
+      .button.primary {
+        background: linear-gradient(135deg, var(--blue), var(--indigo));
+        color: #ffffff;
+        box-shadow: 0 18px 40px rgba(37, 99, 235, 0.22);
+      }
+
+      .button.secondary {
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.8);
+        color: var(--ink);
+      }
+
+      .terminal {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.84);
+        box-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+        overflow: hidden;
+      }
+
+      .terminal-head {
+        display: flex;
+        gap: 7px;
+        border-bottom: 1px solid var(--line);
+        padding: 14px 16px;
+      }
+
+      .dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 999px;
+        background: #cbd5e1;
+      }
+
+      pre {
+        margin: 0;
+        padding: 22px;
+        white-space: pre-wrap;
+        color: #1e293b;
+        font-size: 14px;
+      }
+
+      code {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      }
+
+      section {
+        padding: 48px 0;
+      }
+
+      .section-title {
+        max-width: 760px;
+        margin-bottom: 24px;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: clamp(30px, 4vw, 44px);
+        letter-spacing: -0.04em;
+      }
+
+      .section-title p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.78);
+        padding: 22px;
+      }
+
+      .card h3 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+
+      .card p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .screenshot {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        box-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      }
+
+      .install {
+        display: grid;
+        grid-template-columns: 0.92fr 1.08fr;
+        gap: 20px;
+        align-items: stretch;
+      }
+
+      .install-box {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: var(--card);
+        padding: 24px;
+      }
+
+      .install-box ol {
+        margin: 0;
+        padding-left: 20px;
+        color: var(--muted);
+      }
+
+      .pricing {
+        background: linear-gradient(135deg, #0f172a, #1e1b4b);
+        color: #ffffff;
+      }
+
+      .pricing .page {
+        padding: 58px 0;
+      }
+
+      .pricing p,
+      .pricing li {
+        color: #cbd5e1;
+      }
+
+      .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 24px;
+      }
+
+      .price-card {
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.08);
+        padding: 22px;
+      }
+
+      .price-card strong {
+        display: block;
+        margin-bottom: 8px;
+        color: #ffffff;
+        font-size: 20px;
+      }
+
+      footer {
+        padding: 34px 0 46px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 860px) {
+        header,
+        .nav {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .hero,
+        .install,
+        .grid,
+        .pricing-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          padding-top: 38px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <a class="brand" href="#">
+          <img src="assets/icon.png" alt="Upgrade Copilot icon" />
+          <span>Upgrade Copilot</span>
+        </a>
+        <nav class="nav" aria-label="Primary navigation">
+          <a href="#install">Install</a>
+          <a href="#skills">Skills</a>
+          <a href="#paid">Paid Roadmap</a>
+          <a href="https://github.com/ChaoYue0307/upgrade-copilot">GitHub</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div>
+            <span class="eyebrow">Codex plugin for safer upgrades</span>
+            <h1>Upgrade dependencies without giant risky PRs.</h1>
+            <p class="lead">
+              Upgrade Copilot helps developers find safe dependency batches, map breaking changes,
+              diagnose upgrade-related CI failures, and turn migrations into reviewable pull requests.
+            </p>
+            <div class="cta-row">
+              <a class="button primary" href="#install">Install in Codex</a>
+              <a class="button secondary" href="https://github.com/ChaoYue0307/upgrade-copilot">View on GitHub</a>
+            </div>
+          </div>
+          <div class="terminal" aria-label="Install instructions">
+            <div class="terminal-head">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+            <pre><code>Source: ChaoYue0307/upgrade-copilot
+Git ref: main
+Sparse paths:
+
+Then choose "Add to Codex".</code></pre>
+          </div>
+        </section>
+
+        <section>
+          <img class="screenshot" src="assets/plugin-page.png" alt="Upgrade Copilot plugin page in Codex" />
+        </section>
+
+        <section id="skills">
+          <div class="section-title">
+            <h2>Built around real developer pain.</h2>
+            <p>Not a generic prompt pack. Each skill targets an upgrade job developers and teams repeat.</p>
+          </div>
+          <div class="grid">
+            <article class="card">
+              <h3>Dependency triage</h3>
+              <p>Separate safe patches, risky majors, abandoned packages, and framework-coupled upgrades.</p>
+            </article>
+            <article class="card">
+              <h3>Breaking change mapping</h3>
+              <p>Connect release notes and migration guides to local files, symbols, configs, and tests.</p>
+            </article>
+            <article class="card">
+              <h3>CI rescue</h3>
+              <p>Work from logs back to the smallest responsible upgrade change and validation command.</p>
+            </article>
+            <article class="card">
+              <h3>Migration execution</h3>
+              <p>Implement the smallest useful batch first and keep unrelated refactors out.</p>
+            </article>
+            <article class="card">
+              <h3>PR splitting</h3>
+              <p>Turn large migrations into reviewable PRs with clear rollback notes and merge order.</p>
+            </article>
+            <article class="card">
+              <h3>Team upgrade program</h3>
+              <p>Create a ranked upgrade backlog and 30/60/90-day roadmap that a team can fund.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="install">
+          <div class="section-title">
+            <h2>Install as a custom marketplace.</h2>
+            <p>Upgrade Copilot is public and installable today through Codex's Add marketplace flow.</p>
+          </div>
+          <div class="install">
+            <div class="install-box">
+              <ol>
+                <li>Open Codex Plugins.</li>
+                <li>Choose <strong>Add marketplace</strong>.</li>
+                <li>Paste the source below.</li>
+                <li>Leave Sparse paths empty.</li>
+                <li>Open Upgrade Copilot and choose <strong>Add to Codex</strong>.</li>
+              </ol>
+            </div>
+            <div class="terminal">
+              <div class="terminal-head">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </div>
+              <pre><code>Source: ChaoYue0307/upgrade-copilot
+Git ref: main
+Sparse paths:</code></pre>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <section class="pricing" id="paid">
+      <div class="page">
+        <div class="section-title">
+          <h2>Free plugin now. Paid service later.</h2>
+          <p>
+            The plugin is the distribution wedge. The paid product can become hosted migration intelligence,
+            GitHub automation, and team upgrade dashboards.
+          </p>
+        </div>
+        <div class="pricing-grid">
+          <article class="price-card">
+            <strong>Solo</strong>
+            <p>$10-$20/month for premium playbooks, hosted scans, and upgrade reports.</p>
+          </article>
+          <article class="price-card">
+            <strong>Team</strong>
+            <p>$49-$199/month for repo dashboards, risk scores, and automated PR batches.</p>
+          </article>
+          <article class="price-card">
+            <strong>Company</strong>
+            <p>$500+/month for multi-repo upgrade programs, ownership tracking, and rollout support.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <div class="page">
+      <footer>
+        Upgrade Copilot is a public custom marketplace source, not an official OpenAI marketplace listing.
+      </footer>
+    </div>
+  </body>
+</html>
