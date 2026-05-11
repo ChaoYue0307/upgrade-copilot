@@ -31,6 +31,8 @@
     "privacyPolicyURL": "https://example.com/privacy",
     "termsOfServiceURL": "https://example.com/terms",
     "brandColor": "#2563EB",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/icon.svg",
     "defaultPrompt": [
       "Use Upgrade Copilot to assess this repository for a dependency upgrade.",
       "Use Upgrade Copilot to plan a safe Next.js migration.",
